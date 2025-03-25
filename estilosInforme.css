@@ -1,0 +1,101 @@
+body {
+    background-color: #1a202c;
+}
+
+.form-container {
+    width: 400px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.progress-numbers {
+    display: flex;
+    justify-content: space-between;
+    /* Distribución uniforme */
+    align-items: center;
+    /* Alineación vertical */
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.progress-number-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.progress-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #ccc;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Transición para todos los cambios de color */
+}
+
+.progress-number.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+    /* Cambiar color del borde */
+}
+
+.progress-number:hover {
+    background-color: #45a049; /* Cambio de color al pasar el mouse */
+    border-color: #45a049;
+}
+
+.progress-step-text {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.progress-line {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    height: 2px;
+    background-color: #ccc;
+    /* Línea gris por defecto */
+    z-index: 0;
+    transition: width 0.3s ease;
+    /* Transición suave para el ancho */
+}
+
+.progress-line.active {
+    background-color: #4CAF50;
+    /* Cambiar color de la línea */
+}
+
+.form-step {
+    display: block;
+    opacity: 1;
+    transition: opacity 0.5s ease, transform 0.5s ease; /* Añadir transición para transform */
+    transform: translateX(0);
+    position: relative; /* Importante para el posicionamiento correcto de la transición */
+}
+
+.form-step.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute; /* Cambiar a absolute */
+    top: 0;
+    left: 0;
+    width: 100%; /* Asegurar que el elemento ocupe el mismo espacio */
+    transform: translateX(-20px); /* Iniciar desde la izquierda */
+}
+
+.form-step.previous {
+    transform: translateX(-20px); /* Mover a la izquierda al retroceder */
+    opacity: 0;
+}

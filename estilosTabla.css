@@ -1,0 +1,116 @@
+body {
+    background-color: #1a202c;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #2d3748;
+    color: white;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #4a5568;
+    text-align: left;
+}
+
+th {
+    background-color: #4a5568;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    margin: 5px;
+    background-color: #2d3748;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    background-color: #4a5568;
+}
+
+.pagination a.current {
+    background-color: #3b82f6;
+    color: white;
+}
+
+#filterModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilos mejorados para el modal de visualización */
+#viewModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#modalContent {
+    line-height: 1.6;
+    font-size: 1rem;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 80%;
+    max-width: 900px;
+}
+
+.modal-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-section {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    flex: 1 1 45%;
+    min-width: 300px;
+}
+
+.modal-section.hallazgos-diagnostico {
+    flex: 1 1 100%;
+}
+
+.modal-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: #ffffff;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 0.5rem;
+}
+
+.modal-section .info {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+.modal-section strong {
+    color: #a0aec0;
+    display: inline-block;
+    min-width: 200px;
+    margin-right: 0.5rem;
+}

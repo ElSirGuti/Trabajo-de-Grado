@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Aplicación RSC</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Incluir esto en el <head> de tus páginas -->
+    <script src="sidebar-loader.js"></script>
+</head>
+<body>
+    
+    <main class="main-content">
+        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg">
+            <h1 class="text-2xl font-bold mb-4">Bienvenido</h1>
+            <p class="text-gray-600">Contenido principal de tu aplicación</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
+                    <p class="text-gray-400">Módulo 1</p>
+                </div>
+                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
+                    <p class="text-gray-400">Módulo 2</p>
+                </div>
+                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
+                    <p class="text-gray-400">Módulo 3</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Toggle del sidebar en móviles
+        sidebarToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+        
+        // Cerrar sidebar al hacer clic en el overlay
+        sidebarOverlay.addEventListener('click', function() {
+            toggleSidebar();
+        });
+        
+        // Cerrar sidebar al hacer clic en cualquier lugar fuera de él
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+                if (!sidebar.contains(e.target)) {
+                    toggleSidebar();
+                }
+            }
+        });
+        
+        // Evitar que el clic en el sidebar se propague
+        sidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Marcar como activo el item del menú correspondiente a la página actual
+        function setActiveMenuItem() {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('#sidebar a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Llamar a la función cuando se carga la página
+        window.addEventListener('DOMContentLoaded', setActiveMenuItem);
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            document.body.classList.toggle('sidebar-open');
+        }
+    </script>
+</body>
+</html>
