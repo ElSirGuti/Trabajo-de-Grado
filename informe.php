@@ -4,6 +4,28 @@ require_once 'conexion.php';
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Primero manejar el cliente
+    $codigo_cliente = $_POST['codigo_cliente'];
+
+    // Verificar si el cliente ya existe
+    $stmt_cliente = $conn->prepare("SELECT id_cliente FROM clientes WHERE codigo_cliente = ?");
+    $stmt_cliente->bind_param("s", $codigo_cliente);
+    $stmt_cliente->execute();
+    $result_cliente = $stmt_cliente->get_result();
+
+    if ($result_cliente->num_rows > 0) {
+        $cliente = $result_cliente->fetch_assoc();
+        $id_cliente = $cliente['id_cliente'];
+    } else {
+        // Insertar nuevo cliente
+        $stmt_new_cliente = $conn->prepare("INSERT INTO clientes (codigo_cliente, nombre_cliente, rif_ci, domicilio_fiscal) VALUES (?, ?, ?, ?)");
+        $stmt_new_cliente->bind_param("ssss", $_POST['codigo_cliente'], $_POST['nombre_cliente'], $_POST['rif_ci'], $_POST['domicilio_fiscal']);
+        $stmt_new_cliente->execute();
+        $id_cliente = $conn->insert_id;
+        $stmt_new_cliente->close();
+    }
+
+    // Manejo del equipo
     $tag_numero = $_POST['tag_numero'];
 
     // Verificar si el equipo ya existe
@@ -16,9 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $equipo = $result_check->fetch_assoc();
         $id_equipo = $equipo['id_equipo'];
     } else {
-        // Insertar el equipo (esto no debería ocurrir normalmente)
-        $stmt_equipo = $conn->prepare("INSERT INTO equipos (tag_numero, hp, sistema, ubicacion, descripcion) VALUES (?, ?, ?, ?, ?)");
-        $stmt_equipo->bind_param("sisss", $_POST['tag_numero'], $_POST['hp'], $_POST['sistema'], $_POST['ubicacion'], $_POST['descripcion']);
+        // Insertar el equipo
+        $stmt_equipo = $conn->prepare("INSERT INTO equipos (tag_numero, tipo_equipo, ubicacion, id_cliente) VALUES (?, ?, ?, ?)");
+        $stmt_equipo->bind_param("sssi", $_POST['tag_numero'], $_POST['tipo_equipo'], $_POST['ubicacion'], $id_cliente);
         $stmt_equipo->execute();
         $id_equipo = $conn->insert_id;
         $stmt_equipo->close();
@@ -27,17 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Insertar inspección y demás datos usando $id_equipo
     try {
         // Tabla inspecciones
-        $tipo_equipo = $_POST['tipo_equipo'];
-        $orientacion = $_POST['orientacion'];
-        $vibracion = $_POST['vibracion'];
-        $en_servicio = $_POST['en_servicio'];
-        $presion_succion = $_POST['presion_succion'];
-        $presion_descarga = $_POST['presion_descarga'];
-        $temperatura_operacion = $_POST['temperatura_operacion'];
+        $temperatura_motor_1 = $_POST['temperatura_motor_1'];
+        $temperatura_motor_2 = $_POST['temperatura_motor_2'];
+        $temperatura_bomba_1 = $_POST['temperatura_bomba_1'];
+        $temperatura_bomba_2 = $_POST['temperatura_bomba_2'];
         $fecha_inspeccion = $_POST['fecha_inspeccion'];
 
-        $stmt_inspeccion = $conn->prepare("INSERT INTO inspecciones (id_equipo, tipo_equipo, orientacion, vibracion, en_servicio, presion_succion, presion_descarga, temperatura_operacion, fecha_inspeccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt_inspeccion->bind_param("issssssis", $id_equipo, $tipo_equipo, $orientacion, $vibracion, $en_servicio, $presion_succion, $presion_descarga, $temperatura_operacion, $fecha_inspeccion);
+        $stmt_inspeccion = $conn->prepare("INSERT INTO inspecciones (id_equipo, temperatura_motor_1, temperatura_motor_2, temperatura_bomba_1, temperatura_bomba_2, fecha_inspeccion) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt_inspeccion->bind_param("idddds", $id_equipo, $temperatura_motor_1, $temperatura_motor_2, $temperatura_bomba_1, $temperatura_bomba_2, $fecha_inspeccion);
         $stmt_inspeccion->execute();
         $id_inspeccion = $conn->insert_id;
         $stmt_inspeccion->close();
@@ -124,51 +143,68 @@ $stmt_lista_hallazgos->close();
                 <div class="progress-line" id="progressLine"></div>
                 <div class="progress-number-container">
                     <div class="progress-number active" id="number1" onclick="goToStep(1)">1</div>
-                    <div class="progress-step-text">Equipo</div>
+                    <div class="progress-step-text">Cliente</div>
                 </div>
                 <div class="progress-number-container">
                     <div class="progress-number" id="number2" onclick="goToStep(2)">2</div>
-                    <div class="progress-step-text">Inspección</div>
+                    <div class="progress-step-text">Equipo</div>
                 </div>
                 <div class="progress-number-container">
                     <div class="progress-number" id="number3" onclick="goToStep(3)">3</div>
-                    <div class="progress-step-text">Fallas</div>
+                    <div class="progress-step-text">Inspección</div>
                 </div>
                 <div class="progress-number-container">
                     <div class="progress-number" id="number4" onclick="goToStep(4)">4</div>
-                    <div class="progress-step-text">Diagnóstico</div>
+                    <div class="progress-step-text">Fallas</div>
                 </div>
                 <div class="progress-number-container">
                     <div class="progress-number" id="number5" onclick="goToStep(5)">5</div>
+                    <div class="progress-step-text">Diagnóstico</div>
+                </div>
+                <div class="progress-number-container">
+                    <div class="progress-number" id="number6" onclick="goToStep(6)">6</div>
                     <div class="progress-step-text">Análisis</div>
                 </div>
             </div>
+
             <div class="form-step" id="step1">
-                <h2 class="text-lg font-medium mb-2">Equipo</h2>
+                <h2 class="text-lg font-medium mb-2">Datos del Cliente</h2>
+
                 <div class="mb-4">
-                    <label for="tag_numero" class="block text-sm font-medium text-gray-700">Tag Número:</label>
-                    <input type="text" name="tag_numero" id="tag_numero" required
-                        class="mt-1 p-2 w-full border rounded-md" oninput="buscarEquipo(this.value)">
-                </div>
-                <div class="mb-4">
-                    <label for="hp" class="block text-sm font-medium text-gray-700">HP:</label>
-                    <input type="number" min="0" name="hp" id="hp" class="mt-1 p-2 w-full border rounded-md">
+                    <label for="codigo_cliente" class="block text-sm font-medium text-gray-700">Código de
+                        Cliente:</label>
+                    <input type="text" name="codigo_cliente" id="codigo_cliente" required
+                        class="mt-1 p-2 w-full border rounded-md" oninput="buscarCliente(this.value)">
                 </div>
 
                 <div class="mb-4">
-                    <label for="sistema" class="block text-sm font-medium text-gray-700">Sistema:</label>
-                    <input type="text" name="sistema" id="sistema" class="mt-1 p-2 w-full border rounded-md">
+                    <label for="nombre_cliente" class="block text-sm font-medium text-gray-700">Nombre del
+                        Cliente:</label>
+                    <input type="text" name="nombre_cliente" id="nombre_cliente" required
+                        class="mt-1 p-2 w-full border rounded-md">
                 </div>
 
                 <div class="mb-4">
-                    <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación:</label>
-                    <input type="text" name="ubicacion" id="ubicacion" class="mt-1 p-2 w-full border rounded-md">
+                    <label for="rif_ci" class="block text-sm font-medium text-gray-700">RIF/C.I.:</label>
+                    <div class="flex">
+                        <!-- Dropdown con ancho fijo usando w-16 (equivalente a 4rem) -->
+                        <select name="tipo_documento" id="tipo_documento" 
+                            class="mt-1 p-2 w-20 border rounded-l-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="V">V</option>
+                            <option value="E">E</option>
+                            <option value="J">J</option>
+                        </select>
+                        <!-- Campo para el número -->
+                        <input type="text" name="rif_ci" id="rif_ci" required 
+                            class="mt-1 p-2 w-full border rounded-r-md focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Número de documento">
+                    </div>
                 </div>
 
-                <!-- Textarea de Descripción que faltaba -->
                 <div class="mb-4">
-                    <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción:</label>
-                    <textarea name="descripcion" id="descripcion" rows="3"
+                    <label for="domicilio_fiscal" class="block text-sm font-medium text-gray-700">Domicilio
+                        Fiscal:</label>
+                    <textarea name="domicilio_fiscal" id="domicilio_fiscal" required rows="3"
                         class="mt-1 p-2 w-full border rounded-md"></textarea>
                 </div>
 
@@ -181,7 +217,13 @@ $stmt_lista_hallazgos->close();
             </div>
 
             <div class="form-step hidden" id="step2">
-                <h2 class="text-lg font-medium mb-2">Inspección</h2>
+                <h2 class="text-lg font-medium mb-2">Equipo</h2>
+                <div class="mb-4">
+                    <label for="tag_numero" class="block text-sm font-medium text-gray-700">Tag Número:</label>
+                    <input type="text" name="tag_numero" id="tag_numero" required
+                        class="mt-1 p-2 w-full border rounded-md" oninput="buscarEquipo(this.value)">
+                </div>
+
                 <div class="mb-4">
                     <label for="tipo_equipo" class="block text-sm font-medium text-gray-700">Tipo de Equipo:</label>
                     <select name="tipo_equipo" required class="mt-1 p-2 w-full border rounded-md">
@@ -193,58 +235,43 @@ $stmt_lista_hallazgos->close();
                 </div>
 
                 <div class="mb-4">
-                    <label for="orientacion" class="block text-sm font-medium text-gray-700">Orientación:</label>
-                    <select name="orientacion" required class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Horizontal">Horizontal</option>
-                        <option value="Vertical">Vertical</option>
-                    </select>
+                    <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación:</label>
+                    <input type="text" name="ubicacion" id="ubicacion" class="mt-1 p-2 w-full border rounded-md">
+                </div>
+
+                <button type="button" onclick="goToStep(1)"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Anterior</button>
+                <button type="button" onclick="nextStep(3)"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Siguiente</button>
+            </div>
+
+            <div class="form-step hidden" id="step3">
+                <h2 class="text-lg font-medium mb-2">Inspección</h2>
+
+                <div class="mb-4">
+                    <label for="temperatura_motor_1" class="block text-sm font-medium text-gray-700">Temperatura de
+                        Operación: Motor, Punto 1 (Centígrados):</label>
+                    <input type="number" name="temperatura_motor_1" class="mt-1 p-2 w-full border rounded-md">
                 </div>
 
                 <div class="mb-4">
-                    <label for="vibracion" class="block text-sm font-medium text-gray-700">¿Fue posible tomar mediciones
-                        de
-                        vibración?</label>
-                    <select name="vibracion" required class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Si">Sí</option>
-                        <option value="No">No</option>
-                    </select>
+                    <label for="temperatura_motor_2" class="block text-sm font-medium text-gray-700">Temperatura de
+                        Operación: Motor, Punto 2 (Centígrados):</label>
+                    <input type="number" name="temperatura_motor_2" class="mt-1 p-2 w-full border rounded-md">
                 </div>
 
                 <div class="mb-4">
-                    <label for="en_servicio" class="block text-sm font-medium text-gray-700">¿El equipo estaba en
-                        servicio
-                        durante la inspección?</label>
-                    <select name="en_servicio" required class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Si">Sí</option>
-                        <option value="No">No</option>
-                    </select>
+                    <label for="temperatura_bomba_1" class="block text-sm font-medium text-gray-700">Temperatura de
+                        Operación: Bomba, Punto 1 (Centígrados):</label>
+                    <input type="number" name="temperatura_bomba_1" class="mt-1 p-2 w-full border rounded-md">
                 </div>
 
                 <div class="mb-4">
-                    <label for="presion_succion" class="block text-sm font-medium text-gray-700">¿Fue posible tomar
-                        medidas
-                        de presión de succión?</label>
-                    <select name="presion_succion" class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Si">Sí</option>
-                        <option value="No">No</option>
-                    </select>
+                    <label for="temperatura_bomba_2" class="block text-sm font-medium text-gray-700">Temperatura de
+                        Operación: Bomba, Punto 2 (Centígrados):</label>
+                    <input type="number" name="temperatura_bomba_2" class="mt-1 p-2 w-full border rounded-md">
                 </div>
 
-                <div class="mb-4">
-                    <label for="presion_descarga" class="block text-sm font-medium text-gray-700">¿Fue posible tomar
-                        medidas
-                        de presión de descarga?</label>
-                    <select name="presion_descarga" class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Si">Sí</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label for="temperatura_operacion" class="block text-sm font-medium text-gray-700">Temperatura de
-                        Operación (Fahrenheit):</label>
-                    <input type="number" name="temperatura_operacion" class="mt-1 p-2 w-full border rounded-md">
-                </div>
                 <div class="mb-4">
                     <label for="fecha_inspeccion" class="block text-sm font-medium text-gray-700">Fecha de la
                         Inspección:</label>
@@ -254,18 +281,13 @@ $stmt_lista_hallazgos->close();
                     </div>
                 </div>
 
-                <script>
-                    document.getElementById("fecha_inspeccion").addEventListener("change", function () {
-                        console.log("Fecha seleccionada:", this.value);
-                    });
-                </script>
-                <button type="button" onclick="goToStep(1)"
+                <button type="button" onclick="goToStep(2)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Anterior</button>
-                <button type="button" onclick="nextStep(3)"
+                <button type="button" onclick="nextStep(4)"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Siguiente</button>
             </div>
 
-            <div class="form-step hidden" id="step3">
+            <div class="form-step hidden" id="step4">
                 <h2 class="text-lg font-medium mb-2">Hallazgos</h2>
                 <div class="mb-4">
                     <select name="hallazgos[]" id="hallazgos" multiple class="w-full border rounded-md p-2">
@@ -295,13 +317,13 @@ $stmt_lista_hallazgos->close();
                             class="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Agregar</button>
                     </div>
                 </div>
-                <button type="button" onclick="goToStep(2)"
+                <button type="button" onclick="goToStep(3)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Anterior</button>
-                <button type="button" onclick="nextStep(4)"
+                <button type="button" onclick="nextStep(5)"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Siguiente</button>
             </div>
 
-            <div class="form-step hidden" id="step4">
+            <div class="form-step hidden" id="step5">
                 <h2 class="text-lg font-medium mb-2">Diagnóstico</h2>
                 <div class="mb-4">
                     <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad:</label>
@@ -324,15 +346,15 @@ $stmt_lista_hallazgos->close();
                         <option value="Alto">Alto</option>
                         <option value="Moderado">Moderado</option>
                         <option value="Bajo">Bajo</option>
-                        <option value="No se midió vibración">No se midió vibración</option>
                     </select>
                 </div>
-                <button type="button" onclick="goToStep(3)"
+                <button type="button" onclick="goToStep(4)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Anterior</button>
-                <button type="button" onclick="nextStep(5)"
+                <button type="button" onclick="nextStep(6)"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Siguiente</button>
             </div>
-            <div class="form-step hidden" id="step5">
+
+            <div class="form-step hidden" id="step6">
                 <h2 class="text-lg font-medium mb-2">Análisis y Recomendaciones</h2>
                 <div class="mb-4">
                     <label for="analisis" class="block text-sm font-medium text-gray-700">Análisis:</label>
@@ -345,7 +367,7 @@ $stmt_lista_hallazgos->close();
                     <textarea name="recomendaciones" class="mt-1 p-2 w-full border rounded-md"></textarea>
                 </div>
 
-                <button type="button" onclick="goToStep(4)"
+                <button type="button" onclick="goToStep(5)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Anterior</button>
                 <button type="submit"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar
@@ -361,12 +383,12 @@ $stmt_lista_hallazgos->close();
             const currentStepElement = document.getElementById("step" + currentStep);
             const nextStepElement = document.getElementById("step" + step);
 
-            // Agregar clase para la transición de salida
+            // Clase para la transición de salida (hacia la izquierda)
             currentStepElement.classList.add("previous");
 
-            // Preparar el siguiente paso para la entrada
+            // Preparar el siguiente paso para la entrada (desde la derecha)
             nextStepElement.classList.remove("hidden");
-            nextStepElement.classList.remove("previous"); // Asegurar que no tenga la clase 'previous'
+            nextStepElement.classList.add("next"); // Nueva clase para la transición hacia adelante
 
             // Actualizar los números del progreso
             document.getElementById("number" + currentStep).classList.remove("active");
@@ -381,9 +403,9 @@ $stmt_lista_hallazgos->close();
             // Usar un setTimeout para controlar la secuencia de las transiciones
             setTimeout(() => {
                 currentStepElement.classList.add("hidden"); // Ocultar el paso anterior
+                nextStepElement.classList.remove("next"); // Remover la clase después de la transición
             }, 500); // La duración debe coincidir con la transición CSS
         }
-
 
         function goToStep(step) {
             if (step !== currentStep) {
@@ -422,21 +444,12 @@ $stmt_lista_hallazgos->close();
 
             // Calcular el ancho basado en el paso actual
             switch (step) {
-                case 1:
-                    progressWidth = 0;
-                    break;
-                case 2:
-                    progressWidth = 25;
-                    break;
-                case 3:
-                    progressWidth = 48;
-                    break;
-                case 4:
-                    progressWidth = 70;
-                    break;
-                case 5:
-                    progressWidth = 95;
-                    break;
+                case 1: progressWidth = 0; console.log(progressWidth); break;
+                case 2: progressWidth = 20; console.log(progressWidth); break;
+                case 3: progressWidth = 35; console.log(progressWidth); break;
+                case 4: progressWidth = 55; console.log(progressWidth); break;
+                case 5: progressWidth = 75; console.log(progressWidth); break;
+                case 6: progressWidth = 95; console.log(progressWidth); break;
             }
             progressLine.style.width = progressWidth + '%';
         }
@@ -474,6 +487,11 @@ $stmt_lista_hallazgos->close();
         updateProgressLine(currentStep);
 
         document.getElementById('miFormulario').addEventListener('submit', function (event) {
+            // Combinar tipo de documento y número antes de enviar
+            const tipoDocumento = document.getElementById('tipo_documento').value;
+            const numeroDocumento = document.getElementById('rif_ci').value;
+            document.getElementById('rif_ci').value = tipoDocumento + '-' + numeroDocumento;
+            
             let camposRequeridos = document.querySelectorAll('[required]');
             let formularioValido = true;
 
@@ -594,22 +612,51 @@ $stmt_lista_hallazgos->close();
         function buscarEquipo(tagNumero) {
             if (tagNumero.length > 0) {
                 $.ajax({
-                    url: 'buscar_equipo.php', // Script PHP para buscar el equipo
+                    url: 'buscar_equipo.php',
                     method: 'POST',
                     data: { tag_numero: tagNumero },
                     success: function (response) {
                         if (response) {
                             let equipo = JSON.parse(response);
-                            $('#hp').val(equipo.hp);
-                            $('#sistema').val(equipo.sistema);
+                            $('#tipo_equipo').val(equipo.tipo_equipo);
                             $('#ubicacion').val(equipo.ubicacion);
-                            $('#descripcion').val(equipo.descripcion);
                         } else {
-                            // Limpiar los campos si no se encuentra el equipo
-                            $('#hp').val('');
-                            $('#sistema').val('');
+                            $('#tipo_equipo').val('');
                             $('#ubicacion').val('');
-                            $('#descripcion').val('');
+                        }
+                    }
+                });
+            }
+        }
+
+        function buscarCliente(codigoCliente) {
+            if (codigoCliente.length > 0) {
+                $.ajax({
+                    url: 'buscar_cliente.php',
+                    method: 'POST',
+                    data: { codigo_cliente: codigoCliente },
+                    success: function(response) {
+                        if (response) {
+                            let cliente = JSON.parse(response);
+                            $('#nombre_cliente').val(cliente.nombre_cliente);
+                            
+                            // Separar el RIF/CI en tipo y número
+                            if (cliente.rif_ci && cliente.rif_ci.includes('-')) {
+                                const [tipo, numero] = cliente.rif_ci.split('-');
+                                $('#tipo_documento').val(tipo);
+                                $('#rif_ci').val(numero);
+                            } else {
+                                $('#tipo_documento').val('V');
+                                $('#rif_ci').val(cliente.rif_ci || '');
+                            }
+                            
+                            $('#domicilio_fiscal').val(cliente.domicilio_fiscal);
+                        } else {
+                            // Limpiar campos si no se encuentra
+                            $('#nombre_cliente').val('');
+                            $('#tipo_documento').val('V');
+                            $('#rif_ci').val('');
+                            $('#domicilio_fiscal').val('');
                         }
                     }
                 });

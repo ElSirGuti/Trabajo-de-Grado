@@ -79,23 +79,40 @@ body {
 .form-step {
     display: block;
     opacity: 1;
-    transition: opacity 0.5s ease, transform 0.5s ease; /* Añadir transición para transform */
     transform: translateX(0);
-    position: relative; /* Importante para el posicionamiento correcto de la transición */
+    position: relative;
 }
-
+  
 .form-step.hidden {
-    display: none;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute; /* Cambiar a absolute */
-    top: 0;
-    left: 0;
-    width: 100%; /* Asegurar que el elemento ocupe el mismo espacio */
-    transform: translateX(-20px); /* Iniciar desde la izquierda */
+display: none;
+opacity: 0;
+pointer-events: none;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+transform: translateX(-20px); /* Transición inicial desde la izquierda */
 }
 
 .form-step.previous {
-    transform: translateX(-20px); /* Mover a la izquierda al retroceder */
-    opacity: 0;
+transform: translateX(-20px); /* Mover a la izquierda al retroceder */
+opacity: 0;
 }
+
+.form-step.next {
+transform: translateX(20px); /* Transición inicial desde la derecha */
+opacity: 0;
+}
+
+/* Estilos para mantener la alineación */
+.flex select {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.flex input[type="text"] {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+

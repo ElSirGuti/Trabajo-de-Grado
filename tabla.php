@@ -20,11 +20,6 @@ if (!empty($_GET['tipo_equipo'])) {
     $params[] = $_GET['tipo_equipo'];
     $types .= "s";
 }
-if (!empty($_GET['orientacion'])) {
-    $filters[] = "inspecciones.orientacion = ?";
-    $params[] = $_GET['orientacion'];
-    $types .= "s";
-}
 if (!empty($_GET['prioridad'])) {
     $filters[] = "diagnosticos.prioridad = ?";
     $params[] = $_GET['prioridad'];
@@ -49,28 +44,29 @@ if (!empty($_GET['fecha_inicio']) && !empty($_GET['fecha_fin'])) {
 
 $filterSql = count($filters) > 0 ? "WHERE " . implode(" AND ", $filters) : "";
 
-// Consulta principal modificada
+// Consulta principal modificada para incluir datos del cliente
 $sql = "SELECT 
     equipos.id_equipo,
     equipos.tag_numero, 
-    equipos.hp,
-    equipos.sistema,
+    equipos.tipo_equipo,
     equipos.ubicacion,
-    equipos.descripcion,
+    clientes.id_cliente,
+    clientes.codigo_cliente,
+    clientes.nombre_cliente,
+    clientes.rif_ci,
+    clientes.domicilio_fiscal,
     inspecciones.id_inspeccion,
-    inspecciones.tipo_equipo, 
-    inspecciones.orientacion, 
-    inspecciones.vibracion,
-    inspecciones.en_servicio,
-    inspecciones.presion_succion,
-    inspecciones.presion_descarga,
-    inspecciones.temperatura_operacion,
+    inspecciones.temperatura_motor_1,
+    inspecciones.temperatura_motor_2,
+    inspecciones.temperatura_bomba_1,
+    inspecciones.temperatura_bomba_2,
     inspecciones.fecha_inspeccion,
     diagnosticos.id_diagnostico,
     diagnosticos.prioridad, 
     diagnosticos.nivel_vibracion
 FROM inspecciones 
 JOIN equipos ON inspecciones.id_equipo = equipos.id_equipo 
+JOIN clientes ON equipos.id_cliente = clientes.id_cliente
 JOIN diagnosticos ON inspecciones.id_inspeccion = diagnosticos.id_inspeccion 
 $filterSql 
 ORDER BY inspecciones.fecha_inspeccion DESC
@@ -103,7 +99,6 @@ $totalPages = ceil($totalRow['total'] / $limit);
 // Obtener los parámetros de filtro actuales
 $tag_numero = isset($_GET['tag_numero']) ? $_GET['tag_numero'] : '';
 $tipo_equipo = isset($_GET['tipo_equipo']) ? $_GET['tipo_equipo'] : '';
-$orientacion = isset($_GET['orientacion']) ? $_GET['orientacion'] : '';
 $prioridad = isset($_GET['prioridad']) ? $_GET['prioridad'] : '';
 $nivel_vibracion = isset($_GET['nivel_vibracion']) ? $_GET['nivel_vibracion'] : '';
 $fecha_inspeccion = isset($_GET['fecha_inspeccion']) ? $_GET['fecha_inspeccion'] : '';
@@ -157,19 +152,6 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                                         <option value="compresor" <?php if ($tipo_equipo == 'compresor')
                                             echo 'selected'; ?>>
                                             Compresor</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="orientacion"
-                                        class="block mb-2 text-sm font-medium text-white">Orientación:</label>
-                                    <select name="orientacion"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                        <option value="">Todas</option>
-                                        <option value="vertical" <?php if ($orientacion == 'vertical')
-                                            echo 'selected'; ?>>
-                                            Vertical</option>
-                                        <option value="horizontal" <?php if ($orientacion == 'horizontal')
-                                            echo 'selected'; ?>>Horizontal</option>
                                     </select>
                                 </div>
                                 <div>
@@ -241,21 +223,109 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
             </div>
 
             <!-- Modal para ver el registro -->
-            <div id="viewModal"
-                class="fixed inset-0 z-50 hidden overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-75">
-                <div class="relative w-full max-w-4xl p-4 mx-auto my-auto">
-                    <div class="relative bg-gray-800 rounded-lg shadow dark:bg-gray-700">
+            <div id="viewModal" class="fixed inset-0 z-50 hidden overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-75">
+                <div class="relative w-full max-w-5xl p-4 mx-auto my-auto"> <!-- Cambiado a max-w-5xl para más ancho -->
+                    <div class="relative bg-gray-800 rounded-lg shadow dark:bg-gray-700 border border-gray-600">
                         <div class="p-6">
-                            <h3 class="mb-5 text-lg font-semibold text-white">Detalles del Registro</h3>
-                            <div id="modalContent" class="space-y-4 text-white">
+                            <h3 class="text-2xl font-bold text-white mb-6">Detalles del Registro</h3>
+                            <div id="modalContent" class="data-container text-white">
                                 <!-- Aquí se cargará la información del registro -->
                             </div>
-                            <button onclick="toggleViewModal()"
-                                class="mt-4 px-4 py-2 bg-red-600 rounded text-white">Cerrar</button>
+                            <div class="flex justify-end mt-6">
+                                <button onclick="toggleViewModal()" class="px-4 py-2 bg-red-600 rounded text-white">Cerrar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <style>
+                /* Estilos mejorados para el modal de visualización */
+                .data-container {
+                    display: grid;
+                    grid-template-columns: 220px 1fr; /* Aumentado el ancho de las etiquetas */
+                    gap: 12px;
+                    width: 100%;
+                }
+                
+                .data-label {
+                    font-weight: 600;
+                    color: #a0aec0;
+                    text-align: right;
+                    white-space: nowrap;
+                    padding-right: 12px;
+                }
+                
+                .data-value {
+                    word-break: break-word;
+                    padding-left: 8px;
+                    border-left: 1px solid #4a5568;
+                    color: #e2e8f0;
+                }
+                
+                .section-title {
+                    grid-column: 1 / -1;
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-top: 16px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid #4a5568;
+                    color: #ffffff;
+                }
+                
+                .long-text {
+                    white-space: pre;
+                    background-color: rgba(74, 85, 104, 0.3);
+                    padding: 12px;
+                    border-radius: 6px;
+                    border: 1px solid #4a5568;
+                    grid-column: 1 / -1;
+                    margin-left: 0; /* Elimina cualquier margen izquierdo */
+                    text-indent: 0; /* Elimina la indentación */
+                }
+                
+                .long-text p,
+                .long-text ul,
+                .long-text ol {
+                    margin-left: 0;
+                    padding-left: 20px; /* Sangría normal para listas */
+                }
+                
+                .long-text li {
+                    margin-bottom: 4px;
+                }
+                
+                ul.hallazgos-list {
+                    list-style-type: disc;
+                    padding-left: 20px;
+                    margin: 0;
+                    grid-column: 1 / -1;
+                }
+                
+                ul.hallazgos-list li {
+                    margin-bottom: 4px;
+                }
+                
+                @media (max-width: 768px) {
+                    .data-container {
+                        grid-template-columns: 1fr;
+                        gap: 8px;
+                    }
+                    
+                    .data-label {
+                        text-align: left;
+                        padding-bottom: 4px;
+                        padding-right: 0;
+                    }
+                    
+                    .data-value {
+                        border-left: none;
+                        padding-left: 0;
+                        padding-bottom: 12px;
+                        border-bottom: 1px dashed #4a5568;
+                    }
+                }
+            </style>
 
             <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
                 <div class="flex gap-2" style="margin-top: 10px;">
@@ -279,7 +349,6 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                             <tr>
                                 <th>TAG Numero</th>
                                 <th>Tipo de Equipo</th>
-                                <th>Orientacion</th>
                                 <th>Prioridad</th>
                                 <th>Nivel de Vibracion</th>
                                 <th>Fecha de Inspeccion</th>
@@ -291,7 +360,6 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                                 <tr>
                                     <td><?php echo $row['tag_numero']; ?></td>
                                     <td><?php echo $row['tipo_equipo']; ?></td>
-                                    <td><?php echo $row['orientacion']; ?></td>
                                     <td><?php echo $row['prioridad']; ?></td>
                                     <td><?php echo $row['nivel_vibracion']; ?></td>
                                     <td><?php echo $row['fecha_inspeccion']; ?></td>
@@ -305,7 +373,7 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                     </table>
                     <div class="pagination text-center mt-4 flex justify-center items-center">
                         <?php if ($page > 1) { ?>
-                            <a href="?page=<?php echo $page - 1; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&orientacion=<?php echo $orientacion; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
+                            <a href="?page=<?php echo $page - 1; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
                                 class="inline-flex items-center px-4 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -316,12 +384,16 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                                 <span class="sr-only">Previous</span>
                             </a>
                         <?php } ?>
+                        
                         <?php for ($i = 1; $i <= $totalPages; $i++) { ?>
-                            <a href="?page=<?php echo $i; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&orientacion=<?php echo $orientacion; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
-                                class="inline-flex items-center px-4 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white <?php echo ($page == $i) ? 'current' : ''; ?>"><?php echo $i; ?></a>
+                            <a href="?page=<?php echo $i; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
+                                class="inline-flex items-center px-4 py-2 mx-1 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white <?php echo ($page == $i) ? 'current' : 'text-gray-500 bg-white'; ?>">
+                                <?php echo $i; ?>
+                            </a>
                         <?php } ?>
+                        
                         <?php if ($page < $totalPages) { ?>
-                            <a href="?page=<?php echo $page + 1; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&orientacion=<?php echo $orientacion; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
+                            <a href="?page=<?php echo $page + 1; ?>&tag_numero=<?php echo $tag_numero; ?>&tipo_equipo=<?php echo $tipo_equipo; ?>&prioridad=<?php echo $prioridad; ?>&nivel_vibracion=<?php echo $nivel_vibracion; ?>&fecha_inspeccion=<?php echo $fecha_inspeccion; ?>&fecha_inicio=<?php echo $fecha_inicio; ?>&fecha_fin=<?php echo $fecha_fin; ?>"
                                 class="inline-flex items-center px-4 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 <span class="sr-only">Next</span>
                                 <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
@@ -368,105 +440,141 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
         }
 
         function verRegistro(id_inspeccion) {
-            fetch(`obtener_registro.php?id_inspeccion=${id_inspeccion}`)
-                .then(response => {
-                    // Verificar si la respuesta es JSON
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        return response.text().then(text => {
-                            throw new Error(`Respuesta no es JSON: ${text}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
+    fetch(`obtener_registro.php?id_inspeccion=${id_inspeccion}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
 
-                    const modalContent = document.getElementById('modalContent');
+            const modalContent = document.getElementById('modalContent');
 
-                    // Función para manejar valores null
-                    function manejarNull(valor, mensajeAlternativo = 'No disponible') {
-                        return valor === null || valor === undefined ? mensajeAlternativo : valor;
-                    }
+            // Función para limpiar y formatear el texto
+            function formatearTexto(texto) {
+                if (!texto) return 'No disponible';
+                // Eliminar guiones al inicio de línea y espacios extra
+                return texto.replace(/^\s*-\s*/gm, '').trim();
+            }
 
-                    // Crear HTML para fallas
-                    let fallasHTML = '';
-                    if (data.fallas && data.fallas.length > 0) {
-                        fallasHTML = `<div class="info"><strong>Falla(s):</strong> ${data.fallas.join(', ')}</div>`;
-                    }
+            // Crear HTML para fallas
+            let fallasHTML = '';
+            if (data.fallas && data.fallas.length > 0) {
+                fallasHTML = `<div class="data-value">
+                    <ul class="hallazgos-list">
+                        ${data.fallas.map(falla => `<li>${falla}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
 
-                    // Crear HTML para hallazgos
-                    let hallazgosHTML = '';
-                    if (data.hallazgos && data.hallazgos.length > 0) {
-                        hallazgosHTML = `<div class="info"><strong>Hallazgo(s):</strong> ${data.hallazgos.join(', ')}</div>`;
-                    }
+            // Crear HTML para hallazgos
+            let hallazgosHTML = '';
+            if (data.hallazgos && data.hallazgos.length > 0) {
+                hallazgosHTML = `<div class="data-value">
+                    <ul class="hallazgos-list">
+                        ${data.hallazgos.map(hallazgo => `<li>${hallazgo}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
 
-                    let prioridadTexto = '';
-                    switch (data.prioridad) {
-                        case 1:
-                            prioridadTexto = '1. Equipo en condiciones de vibración severas, debe tomarse acción inmediata';
-                            break;
-                        case 2:
-                            prioridadTexto = '2. Equipo en condición de vibración crítica, debe tomarse acción planificada';
-                            break;
-                        case 3:
-                            prioridadTexto = '3. Equipo bajo observación, monitorear operación y planificar mantenimiento';
-                            break;
-                        case 4:
-                            prioridadTexto = '4. Condición normal de operación';
-                            break;
-                        case 5:
-                            prioridadTexto = '5. F. Fuera de Servicio';
-                            break;
-                        default:
-                            prioridadTexto = manejarNull(data.prioridad);
-                    }
+            let prioridadTexto = '';
+            switch (data.prioridad) {
+                case 1:
+                    prioridadTexto = '1. Equipo en condiciones de vibración severas, debe tomarse acción inmediata';
+                    break;
+                case 2:
+                    prioridadTexto = '2. Equipo en condición de vibración crítica, debe tomarse acción planificada';
+                    break;
+                case 3:
+                    prioridadTexto = '3. Equipo bajo observación, monitorear operación y planificar mantenimiento';
+                    break;
+                case 4:
+                    prioridadTexto = '4. Condición normal de operación';
+                    break;
+                case 5:
+                    prioridadTexto = 'F. Fuera de Servicio';
+                    break;
+                default:
+                    prioridadTexto = data.prioridad || 'No disponible';
+            }
 
-                    modalContent.innerHTML = `
-                <div class="modal-sections">
-                    <div class="modal-section datos-equipo">
-                        <h3>Datos del Equipo</h3><br>
-                        <div class="info"><strong>Tag Número:</strong> ${manejarNull(data.tag_numero)}</div><br>
-                        <div class="info"><strong>HP:</strong> ${manejarNull(data.hp)}</div><br>
-                        <div class="info"><strong>Sistema:</strong> ${manejarNull(data.sistema)}</div><br>
-                        <div class="info"><strong>Ubicación:</strong> ${manejarNull(data.ubicacion)}</div><br>
-                        <div class="info"><strong>Descripción:</strong> ${manejarNull(data.descripcion)}</div><br>
-                        <div class="info"><strong>Tipo de Equipo:</strong> ${manejarNull(data.tipo_equipo)}</div><br>
-                        <div class="info"><strong>Orientación:</strong> ${manejarNull(data.orientacion)}</div><br>
-                        <div class="info"><strong>Fecha Inspección:</strong> ${manejarNull(data.fecha_inspeccion)}</div><br>
-                    </div>
-
-                    <div class="modal-section condiciones-operacion">
-                        <h3>Condiciones de Operación</h3><br>
-                        <div class="info"><strong>¿Fue posible tomar mediciones de vibración?</strong> ${manejarNull(data.vibracion)}</div><br>
-                        <div class="info"><strong>¿El equipo estaba en servicio durante la inspección?</strong> ${manejarNull(data.en_servicio)}</div><br>
-                        <div class="info"><strong>¿Fue posible tomar medidas de presión de succión?</strong> ${manejarNull(data.presion_succion)}</div><br>
-                        <div class="info"><strong>¿Fue posible tomar medidas de presión de descarga?</strong> ${manejarNull(data.presion_descarga)}</div><br>
-                        <div class="info"><strong>Temperatura Operación (Fahrenheit):</strong> ${manejarNull(data.temperatura_operacion)}</div><br>
-                    </div>
+            modalContent.innerHTML = `
+                <!-- Sección Cliente -->
+                <div class="section-title">Datos del Cliente</div>
+                
+                <div class="data-label">Código de Cliente:</div>
+                <div class="data-value">${data.codigo_cliente || 'No disponible'}</div>
+                
+                <div class="data-label">Nombre:</div>
+                <div class="data-value">${data.nombre_cliente || 'No disponible'}</div>
+                
+                <div class="data-label">RIF/C.I.:</div>
+                <div class="data-value">${data.rif_ci || 'No disponible'}</div>
+                
+                <div class="data-label">Domicilio Fiscal:</div>
+                <div class="data-value">${data.domicilio_fiscal || 'No disponible'}</div>
+                
+                <!-- Sección Equipo -->
+                <div class="section-title">Datos del Equipo</div>
+                
+                <div class="data-label">Tag Número:</div>
+                <div class="data-value">${data.tag_numero || 'No disponible'}</div>
+                
+                <div class="data-label">Tipo de Equipo:</div>
+                <div class="data-value">${data.tipo_equipo || 'No disponible'}</div>
+                
+                <div class="data-label">Ubicación:</div>
+                <div class="data-value">${data.ubicacion || 'No disponible'}</div>
+                
+                <!-- Sección Inspección -->
+                <div class="section-title">Datos de Inspección</div>
+                
+                <div class="data-label">Fecha de Inspección:</div>
+                <div class="data-value">${data.fecha_inspeccion || 'No disponible'}</div>
+                
+                <div class="data-label">Temperaturas Motor:</div>
+                <div class="data-value">Punto 1: ${data.temperatura_motor_1 || 'N/A'}°C, Punto 2: ${data.temperatura_motor_2 || 'N/A'}°C</div>
+                
+                <div class="data-label">Temperaturas Bomba:</div>
+                <div class="data-value">Punto 1: ${data.temperatura_bomba_1 || 'N/A'}°C, Punto 2: ${data.temperatura_bomba_2 || 'N/A'}°C</div>
+                
+                <!-- Sección Hallazgos -->
+                <div class="section-title">Hallazgos</div>
+                ${hallazgosHTML || '<div class="data-value">No se registraron hallazgos</div>'}
+                
+                <!-- Sección Fallas -->
+                <div class="section-title">Fallas</div>
+                ${fallasHTML || '<div class="data-value">No se registraron fallas</div>'}
+                
+                <!-- Sección Diagnóstico -->
+                <div class="section-title">Diagnóstico</div>
+                
+                <div class="data-label">Prioridad:</div>
+                <div class="data-value">${prioridadTexto}</div>
+                
+                <div class="data-label">Nivel de Vibración:</div>
+                <div class="data-value">${data.nivel_vibracion || 'No disponible'}</div>
+                
+                <!-- Sección Análisis -->
+                <div class="section-title">Análisis</div>
+                <div class="long-text">
+                    ${data.analisis || 'No disponible'}
                 </div>
-
-                <div class="modal-section hallazgos-diagnostico">
-                    <h3>Hallazgos, Fallas y Diagnóstico</h3><br>
-                    ${hallazgosHTML}<br>
-                    ${fallasHTML}<br>
-                    <div class="info"><strong>Prioridad:</strong> ${prioridadTexto}</div><br>
-                    <div class="info"><strong>Nivel de Vibración:</strong> ${manejarNull(data.nivel_vibracion)}</div><br>
-                    <div class="info"><strong>Análisis:</strong> ${manejarNull(data.analisis)}</div><br>
-                    <div class="info"><strong>Recomendaciones:</strong> ${manejarNull(data.recomendaciones)}</div><br>
+                
+                <!-- Sección Recomendaciones -->
+                <div class="section-title">Recomendaciones</div>
+                <div class="long-text">
+                    ${data.recomendaciones || 'No disponible'}
                 </div>
             `;
 
-                    toggleViewModal();
-                })
-                .catch(error => {
-                    console.error('Error al obtener el registro:', error);
-                    alert('Error al cargar los datos del registro: ' + error.message);
-                });
-        }
+            toggleViewModal();
+        })
+        .catch(error => {
+            console.error('Error al obtener el registro:', error);
+            alert('Error al cargar los datos del registro');
+        });
+}
 
         window.addEventListener('click', function (event) {
             if (event.target === viewModal) {

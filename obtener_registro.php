@@ -13,17 +13,22 @@ if (!isset($_GET['id_inspeccion']) || !is_numeric($_GET['id_inspeccion'])) {
 $id_inspeccion = $_GET['id_inspeccion'];
 
 try {
-    // Obtener datos básicos del informe
+    // Obtener datos básicos del informe incluyendo información del cliente
     $stmt = $conn->prepare("
         SELECT 
             e.*, 
             i.*, 
+            c.codigo_cliente,
+            c.nombre_cliente,
+            c.rif_ci,
+            c.domicilio_fiscal,
             d.prioridad, 
             d.nivel_vibracion,
             a.analisis,
             a.recomendaciones
         FROM inspecciones i
         JOIN equipos e ON i.id_equipo = e.id_equipo
+        JOIN clientes c ON e.id_cliente = c.id_cliente
         JOIN diagnosticos d ON i.id_inspeccion = d.id_inspeccion
         LEFT JOIN analisis a ON d.id_diagnostico = a.id_diagnostico
         WHERE i.id_inspeccion = ?

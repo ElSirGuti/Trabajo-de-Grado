@@ -1,83 +1,218 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-
-    <title>Aplicación RSC</title>
+    <meta charset="UTF-8">
+    <title>Visualización de Informe</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- Incluir esto en el <head> de tus páginas -->
-    <script src="sidebar-loader.js"></script>
+    <style>
+        /* Estilos personalizados para el modal con tu paleta de colores */
+        body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        
+        .modal-content {
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 0.5rem;
+        }
+        
+        .modal-header {
+            padding: 1.5rem 1.5rem 0;
+            border-bottom: 1px solid #4a5568;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .data-container {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 12px;
+        }
+        
+        .data-label {
+            font-weight: 600;
+            color: #a0aec0;
+            text-align: right;
+            white-space: nowrap;
+            padding-right: 12px;
+        }
+        
+        .data-value {
+            word-break: break-word;
+            padding-left: 8px;
+            border-left: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .section-title {
+            grid-column: 1 / -1;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #4a5568;
+            color: #ffffff;
+        }
+        
+        .long-text {
+            white-space: pre-wrap;
+            background-color: rgba(74, 85, 104, 0.3);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #4a5568;
+            grid-column: 1 / -1;
+        }
+        
+        ul.hallazgos-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin: 0;
+            grid-column: 1 / -1;
+        }
+        
+        ul.hallazgos-list li {
+            margin-bottom: 4px;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #4a5568;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn-close {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-close:hover {
+            background-color: #2563eb;
+        }
+        
+        @media (max-width: 768px) {
+            .data-container {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .data-label {
+                text-align: left;
+                padding-bottom: 4px;
+                padding-right: 0;
+            }
+            
+            .data-value {
+                border-left: none;
+                padding-left: 0;
+                padding-bottom: 12px;
+                border-bottom: 1px dashed #4a5568;
+            }
+        }
+    </style>
 </head>
 <body>
-    
-    <main class="main-content">
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg">
-            <h1 class="text-2xl font-bold mb-4">Bienvenido</h1>
-            <p class="text-gray-600">Contenido principal de tu aplicación</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
-                    <p class="text-gray-400">Módulo 1</p>
+
+<!-- Modal de visualización con tu paleta de colores -->
+<div class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="text-2xl font-bold text-white mb-4">Informe de Inspección Detallado</h3>
+        </div>
+        
+        <div class="modal-body">
+            <div class="data-container">
+                <!-- Sección Cliente -->
+                <div class="section-title">Datos del Cliente</div>
+                
+                <div class="data-label">Código de Cliente:</div>
+                <div class="data-value">CLI-001</div>
+                
+                <div class="data-label">Nombre:</div>
+                <div class="data-value">Empresa Ejemplo S.A.</div>
+                
+                <div class="data-label">RIF/C.I.:</div>
+                <div class="data-value">J-123456789</div>
+                
+                <div class="data-label">Domicilio Fiscal:</div>
+                <div class="data-value">Av. Principal, Edificio Ejemplo, Piso 5, Oficina 502, Caracas, Venezuela</div>
+                
+                <!-- Sección Equipo -->
+                <div class="section-title">Datos del Equipo</div>
+                
+                <div class="data-label">Tag Número:</div>
+                <div class="data-value">EQP-001</div>
+                
+                <div class="data-label">Tipo de Equipo:</div>
+                <div class="data-value">Bomba Centrífuga</div>
+                
+                <div class="data-label">Ubicación:</div>
+                <div class="data-value">Planta de Procesamiento, Sector B-12</div>
+                
+                <!-- Sección Inspección -->
+                <div class="section-title">Datos de Inspección</div>
+                
+                <div class="data-label">Fecha de Inspección:</div>
+                <div class="data-value">15/05/2023</div>
+                
+                <div class="data-label">Temperaturas Motor:</div>
+                <div class="data-value">Punto 1: 85°C, Punto 2: 82°C</div>
+                
+                <div class="data-label">Temperaturas Bomba:</div>
+                <div class="data-value">Punto 1: 72°C, Punto 2: 75°C</div>
+                
+                <!-- Sección Hallazgos -->
+                <div class="section-title">Hallazgos</div>
+                <div class="data-value">
+                    <ul class="hallazgos-list">
+                        <li>Daño en Rodamientos</li>
+                        <li>Desgaste en Sellos Mecánicos</li>
+                        <li>Vibración anormal en eje principal</li>
+                    </ul>
                 </div>
-                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
-                    <p class="text-gray-400">Módulo 2</p>
+                
+                <!-- Sección Diagnóstico -->
+                <div class="section-title">Diagnóstico</div>
+                
+                <div class="data-label">Prioridad:</div>
+                <div class="data-value">2. Equipo en condición de vibración crítica, debe tomarse acción planificada</div>
+                
+                <div class="data-label">Nivel de Vibración:</div>
+                <div class="data-value">Alto</div>
+                
+                <!-- Sección Análisis -->
+                <div class="section-title">Análisis</div>
+                <div class="long-text">Se evidencian bajos niveles de lubricación en los puntos del motor, lo que ha generado un aumento en la temperatura de operación. Los rodamientos de la bomba muestran daños moderados con presencia de micropitting en las pistas de rodadura. El análisis espectral muestra un incremento en la amplitud de vibración a 1x RPM, indicando posible desbalanceo. Además, se observan armónicos a 2x y 3x RPM que sugieren problemas de alineación entre el motor y la bomba.
                 </div>
-                <div class="flex items-center justify-center h-24 rounded-lg bg-gray-50">
-                    <p class="text-gray-400">Módulo 3</p>
+                
+                <!-- Sección Recomendaciones -->
+                <div class="section-title">Recomendaciones</div>
+                <div class="long-text">
+                    1. Ejecutar rutina de lubricación al conjunto motor-bomba siguiendo las especificaciones del fabricante.
+                    2. Planificar la intervención del conjunto motor-bomba para revisión y posible reemplazo de rodamientos.
+                    3. Realizar balanceo dinámico del rotor y verificar alineación entre motor y bomba.
+                    4. Mantener en observación y monitorear vibración al menos con equipo colector de valores overall cada 72 horas de operación.
+                    5. Verificar estado de los acoples y sellos mecánicos durante la próxima intervención.
                 </div>
             </div>
         </div>
-    </main>
+        
+        <div class="modal-footer">
+            <button class="btn-close">Cerrar</button>
+        </div>
+    </div>
+</div>
 
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-        // Toggle del sidebar en móviles
-        sidebarToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleSidebar();
-        });
-        
-        // Cerrar sidebar al hacer clic en el overlay
-        sidebarOverlay.addEventListener('click', function() {
-            toggleSidebar();
-        });
-        
-        // Cerrar sidebar al hacer clic en cualquier lugar fuera de él
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
-                if (!sidebar.contains(e.target)) {
-                    toggleSidebar();
-                }
-            }
-        });
-        
-        // Evitar que el clic en el sidebar se propague
-        sidebar.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        
-        // Marcar como activo el item del menú correspondiente a la página actual
-        function setActiveMenuItem() {
-            const currentPage = window.location.pathname.split('/').pop();
-            document.querySelectorAll('#sidebar a').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === currentPage) {
-                    link.classList.add('active');
-                }
-            });
-        }
-        
-        // Llamar a la función cuando se carga la página
-        window.addEventListener('DOMContentLoaded', setActiveMenuItem);
-        
-        function toggleSidebar() {
-            sidebar.classList.toggle('show');
-            document.body.classList.toggle('sidebar-open');
-        }
-    </script>
 </body>
 </html>
