@@ -224,14 +224,14 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
 
             <!-- Modal para ver el registro -->
             <div id="viewModal" class="fixed inset-0 z-50 hidden overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-75">
-                <div class="relative w-full max-w-5xl p-4 mx-auto my-auto"> <!-- Cambiado a max-w-5xl para más ancho -->
-                    <div class="relative bg-gray-800 rounded-lg shadow dark:bg-gray-700 border border-gray-600">
+                <div class="relative w-full max-w-[600px] p-4 mx-auto my-auto"> <!-- Cambiado a max-w-5xl para más ancho -->
+                    <div class="relative bg-gray-800 rounded-lg shadow">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold text-white mb-6">Detalles del Registro</h3>
                             <div id="modalContent" class="data-container text-white">
                                 <!-- Aquí se cargará la información del registro -->
                             </div>
-                            <div class="flex justify-end mt-6">
+                            <div class="flex justify mt-6">
                                 <button onclick="toggleViewModal()" class="px-4 py-2 bg-red-600 rounded text-white">Cerrar</button>
                             </div>
                         </div>
@@ -240,12 +240,15 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
             </div>
 
             <style>
+                * {
+                    list-style: circle;
+                }
                 /* Estilos mejorados para el modal de visualización */
                 .data-container {
                     display: grid;
                     grid-template-columns: 220px 1fr; /* Aumentado el ancho de las etiquetas */
                     gap: 12px;
-                    width: 100%;
+                    width: 50%;
                 }
                 
                 .data-label {
@@ -279,9 +282,9 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
                     padding: 12px;
                     border-radius: 6px;
                     border: 1px solid #4a5568;
-                    grid-column: 1 / -1;
-                    margin-left: 0; /* Elimina cualquier margen izquierdo */
-                    text-indent: 0; /* Elimina la indentación */
+                    grid-column: 1 / -1; /* El texto largo abarca ambas columnas */
+                    margin-left: 0;
+                    text-indent: 0;
                 }
                 
                 .long-text p,
@@ -499,74 +502,50 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
             }
 
             modalContent.innerHTML = `
-                <!-- Sección Cliente -->
-                <div class="section-title">Datos del Cliente</div>
-                
-                <div class="data-label">Código de Cliente:</div>
-                <div class="data-value">${data.codigo_cliente || 'No disponible'}</div>
-                
-                <div class="data-label">Nombre:</div>
-                <div class="data-value">${data.nombre_cliente || 'No disponible'}</div>
-                
-                <div class="data-label">RIF/C.I.:</div>
-                <div class="data-value">${data.rif_ci || 'No disponible'}</div>
-                
-                <div class="data-label">Domicilio Fiscal:</div>
-                <div class="data-value">${data.domicilio_fiscal || 'No disponible'}</div>
-                
-                <!-- Sección Equipo -->
-                <div class="section-title">Datos del Equipo</div>
-                
-                <div class="data-label">Tag Número:</div>
-                <div class="data-value">${data.tag_numero || 'No disponible'}</div>
-                
-                <div class="data-label">Tipo de Equipo:</div>
-                <div class="data-value">${data.tipo_equipo || 'No disponible'}</div>
-                
-                <div class="data-label">Ubicación:</div>
-                <div class="data-value">${data.ubicacion || 'No disponible'}</div>
-                
-                <!-- Sección Inspección -->
-                <div class="section-title">Datos de Inspección</div>
-                
-                <div class="data-label">Fecha de Inspección:</div>
-                <div class="data-value">${data.fecha_inspeccion || 'No disponible'}</div>
-                
-                <div class="data-label">Temperaturas Motor:</div>
-                <div class="data-value">Punto 1: ${data.temperatura_motor_1 || 'N/A'}°C, Punto 2: ${data.temperatura_motor_2 || 'N/A'}°C</div>
-                
-                <div class="data-label">Temperaturas Bomba:</div>
-                <div class="data-value">Punto 1: ${data.temperatura_bomba_1 || 'N/A'}°C, Punto 2: ${data.temperatura_bomba_2 || 'N/A'}°C</div>
-                
-                <!-- Sección Hallazgos -->
-                <div class="section-title">Hallazgos</div>
-                ${hallazgosHTML || '<div class="data-value">No se registraron hallazgos</div>'}
-                
-                <!-- Sección Fallas -->
-                <div class="section-title">Fallas</div>
-                ${fallasHTML || '<div class="data-value">No se registraron fallas</div>'}
-                
-                <!-- Sección Diagnóstico -->
-                <div class="section-title">Diagnóstico</div>
-                
-                <div class="data-label">Prioridad:</div>
-                <div class="data-value">${prioridadTexto}</div>
-                
-                <div class="data-label">Nivel de Vibración:</div>
-                <div class="data-value">${data.nivel_vibracion || 'No disponible'}</div>
-                
-                <!-- Sección Análisis -->
-                <div class="section-title">Análisis</div>
-                <div class="long-text">
-                    ${data.analisis || 'No disponible'}
-                </div>
-                
-                <!-- Sección Recomendaciones -->
-                <div class="section-title">Recomendaciones</div>
-                <div class="long-text">
-                    ${data.recomendaciones || 'No disponible'}
-                </div>
-            `;
+    <div class="section-title">Datos del Cliente</div>
+    <div class="data-label">Código de Cliente:</div>
+    <div class="data-value">${data.codigo_cliente || 'No disponible'}</div>
+    <div class="data-label">Nombre:</div>
+    <div class="data-value">${data.nombre_cliente || 'No disponible'}</div>
+    <div class="data-label">RIF/C.I.:</div>
+    <div class="data-value">${data.rif_ci || 'No disponible'}</div>
+    <div class="data-label">Domicilio Fiscal:</div>
+    <div class="data-value">${data.domicilio_fiscal || 'No disponible'}</div>
+
+    <div class="section-title">Datos del Equipo</div>
+    <div class="data-label">Tag Número:</div>
+    <div class="data-value">${data.tag_numero || 'No disponible'}</div>
+    <div class="data-label">Tipo de Equipo:</div>
+    <div class="data-value">${data.tipo_equipo || 'No disponible'}</div>
+    <div class="data-label">Ubicación:</div>
+    <div class="data-value">${data.ubicacion || 'No disponible'}</div>
+
+    <div class="section-title">Datos de Inspección</div>
+    <div class="data-label">Fecha de Inspección:</div>
+    <div class="data-value">${data.fecha_inspeccion || 'No disponible'}</div>
+    <div class="data-label">Temperaturas Motor:</div>
+    <div class="data-value">Punto 1: ${data.temperatura_motor_1 || 'N/A'}°C, Punto 2: ${data.temperatura_motor_2 || 'N/A'}°C</div>
+    <div class="data-label">Temperaturas Bomba:</div>
+    <div class="data-value">Punto 1: ${data.temperatura_bomba_1 || 'N/A'}°C, Punto 2: ${data.temperatura_bomba_2 || 'N/A'}°C</div>
+
+    <div class="section-title">Hallazgos</div>
+    ${hallazgosHTML || '<div class="data-value">No se registraron hallazgos</div>'}
+
+    <div class="section-title">Fallas</div>
+    ${fallasHTML || '<div class="data-value">No se registraron fallas</div>'}
+
+    <div class="section-title">Diagnóstico</div>
+    <div class="data-label">Prioridad:</div>
+    <div class="data-value">${prioridadTexto}</div>
+    <div class="data-label">Nivel de Vibración:</div>
+    <div class="data-value">${data.nivel_vibracion || 'No disponible'}</div>
+
+    <div class="section-title">Análisis</div>
+    <div class="long-text">${data.analisis || 'No disponible'}</div>
+
+    <div class="section-title">Recomendaciones</div>
+    <div class="long-text">${data.recomendaciones || 'No disponible'}</div>
+    `;
 
             toggleViewModal();
         })
