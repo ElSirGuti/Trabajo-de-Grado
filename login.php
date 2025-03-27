@@ -1,57 +1,58 @@
 <?php
-session_start();
+session_start(); // Inicia la sesión al principio
+
 require_once 'conexion.php';
 
 header('Content-Type: application/json');
 
-// Obtener datos del POST
-$data = json_decode(file_get_contents('php://input'), true);
+try {
+    $data = json_decode(file_get_contents('php://input'), true);
 
-// Validar datos recibidos
-if (!isset($data['email']) || !isset($data['password'])) {
-    http_response_code(400);
-    die(json_encode(['success' => false, 'message' => 'Datos incompletos']));
+    if (!isset($data['correo']) || !isset($data['contrasena'])) {
+        throw new Exception('Credenciales incompletas');
+    }
+
+    $correo = $data['correo'];
+    $contrasena = $data['contrasena'];
+
+    error_log("Email recibido: " . $correo);
+    error_log("Password hash recibido: " . $contrasena);
+
+    // Consulta SQL para verificar las credenciales
+    $stmt = $conn->prepare("SELECT id_usuario, nombre FROM usuarios WHERE correo = ? AND contrasena = ?");
+    if (!$stmt) {
+        throw new Exception('Error de preparación: ' . $conn->error);
+    }
+
+    $stmt->bind_param("ss", $correo, $contrasena); // Usa los nombres de las variables correctas
+    if (!$stmt->execute()) {
+        throw new Exception('Error de ejecución: ' . $stmt->error);
+    }
+
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($id_usuario, $nombre);
+        $stmt->fetch();
+
+        // Inicia la sesión y guarda información del usuario
+        $_SESSION['id_usuario'] = $id_usuario;
+        $_SESSION['nombre'] = $nombre;
+
+        echo json_encode(['success' => true]);
+        error_log("Inicio de sesión exitoso para: " . $correo);
+    } else {
+        throw new Exception('Credenciales incorrectas');
+        error_log("Inicio de sesión fallido para: " . $correo);
+    }
+
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    error_log("Error en login.php: " . $e->getMessage());
+} finally {
+    if (isset($stmt)) {
+        $stmt->close();
+    }
+    $conn->close();
 }
-
-$email = trim($data['email']);
-$password = $data['password']; // Contraseña ya encriptada del cliente
-
-// Buscar usuario en la base de datos
-$stmt = $conn->prepare("SELECT id_usuario, nombre, correo, contrasena, rol FROM usuarios WHERE correo = ?");
-if (!$stmt) {
-    http_response_code(500);
-    die(json_encode(['success' => false, 'message' => 'Error de preparación: ' . $conn->error]));
-}
-
-$stmt->bind_param("s", $email);
-if (!$stmt->execute()) {
-    http_response_code(500);
-    die(json_encode(['success' => false, 'message' => 'Error de ejecución: ' . $stmt->error]));
-}
-
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    http_response_code(401);
-    die(json_encode(['success' => false, 'message' => 'Credenciales incorrectas']));
-}
-
-$usuario = $result->fetch_assoc();
-
-// Verificar contraseña (ya está encriptada, comparamos directamente)
-if ($password !== $usuario['contrasena']) {
-    http_response_code(401);
-    die(json_encode(['success' => false, 'message' => 'Credenciales incorrectas']));
-}
-
-// Iniciar sesión
-$_SESSION['user_id'] = $usuario['id_usuario'];
-$_SESSION['user_name'] = $usuario['nombre'];
-$_SESSION['user_email'] = $usuario['correo'];
-$_SESSION['user_role'] = $usuario['rol'];
-
-echo json_encode(['success' => true, 'message' => 'Login exitoso']);
-
-$stmt->close();
-$conn->close();
 ?>

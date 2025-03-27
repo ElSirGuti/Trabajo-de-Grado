@@ -1,5 +1,11 @@
 <?php
+session_start();
 require_once 'conexion.php';
+
+if (!isset($_SESSION['id_usuario'])) {
+    header("Location: index.php");
+    exit();
+}
 
 $limit = 10;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;

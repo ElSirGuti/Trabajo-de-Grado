@@ -11,10 +11,8 @@ body {
     background-color: var(--dark);
     color: var(--light);
     margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0;
+    display: flex; /* Usamos flex para el layout */
     min-height: 100vh;
 }
 
@@ -28,6 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 80vh;
+    box-sizing: border-box; /* Importante para padding y border */
 }
 
 .chat-header {

@@ -1,5 +1,11 @@
 <?php
+session_start();
 require_once 'conexion.php';
+
+if (!isset($_SESSION['id_usuario'])) {
+    header("Location: index.php");
+    exit();
+}
 
 // Obtener lista de usuarios
 $query = "SELECT id_usuario, nombre, correo, rol FROM usuarios";
@@ -317,9 +323,12 @@ if ($result->num_rows > 0) {
                     </div>
                     <div class="form-group password-container">
                         <label for="contrasena" class="form-label">Contraseña</label>
-                        <input type="password" id="contrasena" name="contrasena" class="password-input" required
-                            oninput="checkPasswordStrength(this.value)">
-                        <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                        <div class="relative">
+                            <input type="password" id="contrasena" name="contrasena" class="password-input" required
+                                oninput="checkPasswordStrength(this.value)">
+                            <button type="button" onclick="togglePasswordVisibility()"
+                                class="toggle-password absolute right-3">👁️</button>
+                        </div>
                         <div class="password-strength">
                             <div id="passwordStrengthBar" class="password-strength-bar"></div>
                         </div>
@@ -344,15 +353,7 @@ if ($result->num_rows > 0) {
             // Función para mostrar/ocultar contraseña
             function togglePasswordVisibility() {
                 const passwordInput = document.getElementById('contrasena');
-                const toggleIcon = document.querySelector('.toggle-password');
-
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggleIcon.textContent = '👁️';
-                } else {
-                    passwordInput.type = 'password';
-                    toggleIcon.textContent = '👁️';
-                }
+                passwordInput.type = passwordInput.type === 'contrasena' ? 'text' : 'contrasena';
             }
 
             // Función para verificar fortaleza de contraseña
@@ -558,9 +559,9 @@ if ($result->num_rows > 0) {
                     body: JSON.stringify(userData)
                 })
                     .then(response => {
-                        // Verificar si la respuesta es JSON
                         const contentType = response.headers.get('content-type');
                         if (!contentType || !contentType.includes('application/json')) {
+                            console.error('Respuesta no es JSON:', response);
                             throw new TypeError("La respuesta no es JSON");
                         }
                         return response.json();
@@ -569,13 +570,14 @@ if ($result->num_rows > 0) {
                         if (data.success) {
                             alert(currentAction === 'add' ? 'Usuario creado exitosamente' : 'Usuario actualizado exitosamente');
                             closeModal();
-                            location.reload(); // Recargar la página para ver los cambios
+                            location.reload();
                         } else {
-                            throw new Error(data.message || 'Error desconocido');
+                            console.error('Error del servidor:', data);
+                            alert('Error: ' + (data.message || 'Error desconocido'));
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        console.error('Error de fetch:', error);
                         alert('Error: ' + error.message);
                     })
                     .finally(() => {
