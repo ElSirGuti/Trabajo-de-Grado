@@ -17,6 +17,19 @@ Este sistema web está diseñado para facilitar el mantenimiento proactivo de eq
 * **Base de Datos:** MySQL
 * **IA:** Hugging face, Llama 3.2:1b
 
+## Estructura del Repositorio
+
+El repositorio está organizado de la siguiente manera:
+
+* **`api/`**: Contiene los archivos relacionados con la integración de la API de Llama 2 1B para el análisis de modos y efectos de fallas.
+    * `llama.php`: Archivo PHP que implementa la lógica para interactuar con la API de Llama 3.2:1b.
+    * `config.php`: Archivo de configuración para la API, incluyendo credenciales y parámetros de conexión.
+* **`assets/`**: Almacena los recursos estáticos del sistema.
+    * `estilosChatbot.css`: Hojas de estilo CSS para la interfaz del chatbot y otros componentes.
+* **`database/`**: Contiene los archivos relacionados con la base de datos MySQL.
+    * `rsc_mantenimiento.sql`: Archivo SQL que define la estructura de la base de datos y los datos iniciales.
+* **`imagenes/`**: Almacena las imágenes utilizadas por el sistema.
+
 ## Instalación (WampServer)
 
 1.  **Instalar WampServer:**
