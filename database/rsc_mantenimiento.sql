@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 27, 2025 at 06:02 PM
+-- Generation Time: Apr 02, 2025 at 07:08 PM
 -- Server version: 8.0.35
 -- PHP Version: 8.2.13
 
@@ -235,14 +235,17 @@ CREATE TABLE IF NOT EXISTS `eventos` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `eventos_ibfk_1` (`id_equipo`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `eventos`
 --
 
 INSERT INTO `eventos` (`id`, `fecha`, `titulo`, `id_equipo`, `created_at`, `updated_at`) VALUES
-(14, '2025-03-12', 'Test 2', NULL, '2025-03-11 22:01:45', '2025-03-11 22:01:45');
+(14, '2025-03-12', 'Test 2', NULL, '2025-03-11 22:01:45', '2025-03-11 22:01:45'),
+(16, '2025-04-03', 'Lubricacion', 113, '2025-04-02 18:41:13', '2025-04-02 18:41:13'),
+(17, '2025-04-04', 'Sustitucion rodamientos', 124, '2025-04-02 18:55:14', '2025-04-02 18:55:14'),
+(18, '2025-04-04', 'Sustitucion rodamientos', 126, '2025-04-02 18:55:14', '2025-04-02 18:55:14');
 
 -- --------------------------------------------------------
 
@@ -512,17 +515,20 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `id_usuario` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,
   `correo` varchar(80) NOT NULL,
-  `contrasena` varchar(50) NOT NULL,
+  `contrasena` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `rol` varchar(50) NOT NULL,
   PRIMARY KEY (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `usuarios`
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `contrasena`, `rol`) VALUES
-(1, 'Andres Gutierrez', 'contacto.elsirguti@gmail.com', 'Agt190604', 'Super');
+(1, 'Andres Gutierrez', 'contacto.elsirguti@gmail.com', 'Agt190604', 'Super'),
+(3, 'Andres Gutierrez', 'elpepe@gmail.com', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'Tecnico'),
+(4, 'Andres Gutierrez', 'etesech@gmail.com', '6eae25564d99bec83e94b45480f34ef29b748e5e1ffb61ed84384969678609c6', 'Tecnico'),
+(6, 'Andres Gutierrez', 'test@test.com', '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25', 'Administrador');
 
 --
 -- Constraints for dumped tables

@@ -196,6 +196,15 @@
                 <span class="tooltip">Estadísticas</span>
             </a>
         </li>
+        <li class="notification-item">
+            <a href="notificaciones.php">
+                <i class="fa fa-bell"></i>
+                <span class="tooltip">Notificaciones</span>
+                <?php if ($hayEventos): ?>
+                    <span class="notification-badge"><?php echo mysqli_num_rows($result); ?></span>
+                <?php endif; ?>
+            </a>
+        </li>
         <li>
             <a href="usuarios.php">
                 <i class="fa fa-users"></i>
@@ -260,5 +269,33 @@
             sidebar.classList.toggle('show');
             document.body.classList.toggle('sidebar-open');
         }
+
+        // Actualizar el badge de notificaciones periódicamente (opcional)
+        function updateNotificationBadge() {
+            fetch('get_notifications_count.php')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (data.count > 0) {
+                        if (!badge) {
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'notification-badge';
+                            newBadge.textContent = data.count;
+                            document.querySelector('.notification-item a').appendChild(newBadge);
+                        } else {
+                            badge.textContent = data.count;
+                        }
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                });
+        }
+        
+        // Actualizar cada 5 minutos (300000 ms)
+        updateNotificationBadge();
+        setInterval(updateNotificationBadge, 300000);
     });
+
+            
+
 </script>

@@ -15,7 +15,7 @@ if (!isset($_SESSION['id_usuario'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Asistente</title>
     <script src="sidebar-loader.js"></script>
-    <link rel="stylesheet" href="assets/estilosChatbot.css">
+    <link rel="stylesheet" href="CSS/estilosChatbot.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
