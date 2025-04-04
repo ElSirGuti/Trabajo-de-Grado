@@ -1,6 +1,6 @@
 # Sistema de Gestión de Mantenimiento Proactivo para la empresa R.S.C. Services C.A. basado en Inteligencia Artificial
 
-Este sistema web está diseñado para facilitar el mantenimiento proactivo de equipos industriales, permitiendo la gestión de activos, la generación de informes y el análisis de fallas mediante inteligencia artificial.
+Este sistema web está diseñado para facilitar el mantenimiento proactivo de equipos industriales, permitiendo la gestión de activos, el análisis de informes y fallas mediante inteligencia artificial.
 
 ## Funcionalidades Principales
 
