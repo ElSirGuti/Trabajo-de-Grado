@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "123456789";
+$password = "";
 $dbname = "rsc_mantenimiento";
 
 $conn = new mysqli($servername, $username, $password, $dbname);

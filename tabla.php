@@ -121,6 +121,34 @@ $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.css">
     <link rel="stylesheet" href="estilosTabla.css">
     <script src="sidebar-loader.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+                    // Actualizar el badge de notificaciones periódicamente
+                    function updateNotificationBadge() {
+                fetch('get_notifications_count.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.querySelector('.notification-badge');
+                        const notificationLink = document.querySelector('.notification-item a');
+                        if (data.count > 0) {
+                            if (!badge) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'notification-badge';
+                                newBadge.textContent = data.count;
+                                notificationLink.appendChild(newBadge);
+                            } else {
+                                badge.textContent = data.count;
+                            }
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    });
+            }
+
+            updateNotificationBadge();
+            setInterval(updateNotificationBadge, 300000);
+        });
+    </script>
 </head>
 
 <body class="">

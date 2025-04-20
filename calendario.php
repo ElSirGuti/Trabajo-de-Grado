@@ -121,6 +121,30 @@ if (!isset($_SESSION['id_usuario'])) {
                         console.error('Error:', error);
                     });
             });
+            // Actualizar el badge de notificaciones periódicamente
+            function updateNotificationBadge() {
+                fetch('get_notifications_count.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.querySelector('.notification-badge');
+                        const notificationLink = document.querySelector('.notification-item a');
+                        if (data.count > 0) {
+                            if (!badge) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'notification-badge';
+                                newBadge.textContent = data.count;
+                                notificationLink.appendChild(newBadge);
+                            } else {
+                                badge.textContent = data.count;
+                            }
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    });
+            }
+
+            updateNotificationBadge();
+            setInterval(updateNotificationBadge, 300000);
         });
     </script>
     <style>
@@ -145,54 +169,52 @@ if (!isset($_SESSION['id_usuario'])) {
 <body class="">
     <main class="main-content">
         <div id='calendar' class="h-screen" style=""></div>
-        </main>
-        <div id="agregarEventoModal"
-            class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3 text-center">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Agregar Evento</h3>
-                    <div class="mt-2 px-7 py-3">
-                        <form id="agregarEventoForm">
-                            <input type="hidden" id="modalFecha">
-                            <label for="modalTitulo" class="block text-sm font-medium text-gray-700">Título:</label>
-                            <input type="text" id="modalTitulo"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <label for="modalEquipos" class="block text-sm font-medium text-gray-700">Equipos:</label>
-                            <select id="modalEquipos" multiple
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">Ningún Equipo</option>
-                            </select>
-                            <div class="items-center px-4 py-3">
-                                <button id="cerrarModal"
-                                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">Cancelar</button>
-                                <button type="submit"
-                                    class="px-4 py-2 bg-blue-500 text-white rounded-md">Agregar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="detalleEventoModal"
-            class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3 text-center">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Detalles del Evento</h3>
-                    <div class="mt-2 px-7 py-3">
-                        <p id="detalleTitulo"></p>
-                        <p id="detalleEquipos"></p>
+    </main>
+    <div id="agregarEventoModal"
+        class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Agregar Evento</h3>
+                <div class="mt-2 px-7 py-3">
+                    <form id="agregarEventoForm">
+                        <input type="hidden" id="modalFecha">
+                        <label for="modalTitulo" class="block text-sm font-medium text-gray-700">Título:</label>
+                        <input type="text" id="modalTitulo"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <label for="modalEquipos" class="block text-sm font-medium text-gray-700">Equipos:</label>
+                        <select id="modalEquipos" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="">Ningún Equipo</option>
+                        </select>
                         <div class="items-center px-4 py-3">
-                            <button id="cerrarDetalleModal"
-                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">Cerrar</button>
-                            <button id="eliminarEvento"
-                                class="px-4 py-2 bg-red-500 text-white rounded-md">Eliminar</button>
+                            <button id="cerrarModal"
+                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">Cancelar</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Agregar</button>
                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detalleEventoModal"
+        class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Detalles del Evento</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="detalleTitulo"></p>
+                    <p id="detalleEquipos"></p>
+                    <div class="items-center px-4 py-3">
+                        <button id="cerrarDetalleModal"
+                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">Cerrar</button>
+                        <button id="eliminarEvento" class="px-4 py-2 bg-red-500 text-white rounded-md">Eliminar</button>
                     </div>
                 </div>
             </div>
         </div>
-    
+    </div>
+
 </body>
 
 </html>
