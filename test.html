@@ -2,217 +2,148 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualización de Informe</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Tareas de Mantenimiento</title>
     <style>
-        /* Estilos personalizados para el modal con tu paleta de colores */
         body {
-            background-color: #1a202c;
-            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
         }
-        
-        .modal-content {
-            max-width: 900px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            background-color: #2d3748;
-            border: 1px solid #4a5568;
-            border-radius: 0.5rem;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        
-        .modal-header {
-            padding: 1.5rem 1.5rem 0;
-            border-bottom: 1px solid #4a5568;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .data-container {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: 12px;
-        }
-        
-        .data-label {
-            font-weight: 600;
-            color: #a0aec0;
-            text-align: right;
-            white-space: nowrap;
-            padding-right: 12px;
-        }
-        
-        .data-value {
-            word-break: break-word;
-            padding-left: 8px;
-            border-left: 1px solid #4a5568;
-            color: #e2e8f0;
-        }
-        
-        .section-title {
-            grid-column: 1 / -1;
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-top: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #4a5568;
-            color: #ffffff;
-        }
-        
-        .long-text {
+        #reportText {
+            display: none;
+            width: 100%;
+            height: 300px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
             white-space: pre-wrap;
-            background-color: rgba(74, 85, 104, 0.3);
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #4a5568;
-            grid-column: 1 / -1;
+            overflow-y: auto;
         }
-        
-        ul.hallazgos-list {
-            list-style-type: disc;
-            padding-left: 20px;
-            margin: 0;
-            grid-column: 1 / -1;
-        }
-        
-        ul.hallazgos-list li {
-            margin-bottom: 4px;
-        }
-        
-        .modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid #4a5568;
+        .button-group {
+            margin: 15px 0;
             display: flex;
-            justify-content: flex-end;
+            gap: 10px;
         }
-        
-        .btn-close {
-            background-color: #3b82f6;
+        button {
+            background-color: #4CAF50;
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
+            padding: 10px 15px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
         }
-        
-        .btn-close:hover {
-            background-color: #2563eb;
+        button:hover {
+            background-color: #45a049;
         }
-        
-        @media (max-width: 768px) {
-            .data-container {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            
-            .data-label {
-                text-align: left;
-                padding-bottom: 4px;
-                padding-right: 0;
-            }
-            
-            .data-value {
-                border-left: none;
-                padding-left: 0;
-                padding-bottom: 12px;
-                border-bottom: 1px dashed #4a5568;
-            }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .task {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            background-color: #fff;
+        }
+        .task p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-
-<!-- Modal de visualización con tu paleta de colores -->
-<div class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="text-2xl font-bold text-white mb-4">Informe de Inspección Detallado</h3>
+    <div class="container">
+        <h1>Extractor de Tareas de Mantenimiento</h1>
+        
+        <div class="button-group">
+            <button onclick="showReport()">Mostrar Informe</button>
+            <button id="extractBtn" onclick="extractTasks()" disabled>Extraer Tareas</button>
         </div>
         
-        <div class="modal-body">
-            <div class="data-container">
-                <!-- Sección Cliente -->
-                <div class="section-title">Datos del Cliente</div>
-                
-                <div class="data-label">Código de Cliente:</div>
-                <div class="data-value">CLI-001</div>
-                
-                <div class="data-label">Nombre:</div>
-                <div class="data-value">Empresa Ejemplo S.A.</div>
-                
-                <div class="data-label">RIF/C.I.:</div>
-                <div class="data-value">J-123456789</div>
-                
-                <div class="data-label">Domicilio Fiscal:</div>
-                <div class="data-value">Av. Principal, Edificio Ejemplo, Piso 5, Oficina 502, Caracas, Venezuela</div>
-                
-                <!-- Sección Equipo -->
-                <div class="section-title">Datos del Equipo</div>
-                
-                <div class="data-label">Tag Número:</div>
-                <div class="data-value">EQP-001</div>
-                
-                <div class="data-label">Tipo de Equipo:</div>
-                <div class="data-value">Bomba Centrífuga</div>
-                
-                <div class="data-label">Ubicación:</div>
-                <div class="data-value">Planta de Procesamiento, Sector B-12</div>
-                
-                <!-- Sección Inspección -->
-                <div class="section-title">Datos de Inspección</div>
-                
-                <div class="data-label">Fecha de Inspección:</div>
-                <div class="data-value">15/05/2023</div>
-                
-                <div class="data-label">Temperaturas Motor:</div>
-                <div class="data-value">Punto 1: 85°C, Punto 2: 82°C</div>
-                
-                <div class="data-label">Temperaturas Bomba:</div>
-                <div class="data-value">Punto 1: 72°C, Punto 2: 75°C</div>
-                
-                <!-- Sección Hallazgos -->
-                <div class="section-title">Hallazgos</div>
-                <div class="data-value">
-                    <ul class="hallazgos-list">
-                        <li>Daño en Rodamientos</li>
-                        <li>Desgaste en Sellos Mecánicos</li>
-                        <li>Vibración anormal en eje principal</li>
-                    </ul>
-                </div>
-                
-                <!-- Sección Diagnóstico -->
-                <div class="section-title">Diagnóstico</div>
-                
-                <div class="data-label">Prioridad:</div>
-                <div class="data-value">2. Equipo en condición de vibración crítica, debe tomarse acción planificada</div>
-                
-                <div class="data-label">Nivel de Vibración:</div>
-                <div class="data-value">Alto</div>
-                
-                <!-- Sección Análisis -->
-                <div class="section-title">Análisis</div>
-                <div class="long-text">Se evidencian bajos niveles de lubricación en los puntos del motor, lo que ha generado un aumento en la temperatura de operación. Los rodamientos de la bomba muestran daños moderados con presencia de micropitting en las pistas de rodadura. El análisis espectral muestra un incremento en la amplitud de vibración a 1x RPM, indicando posible desbalanceo. Además, se observan armónicos a 2x y 3x RPM que sugieren problemas de alineación entre el motor y la bomba.
-                </div>
-                
-                <!-- Sección Recomendaciones -->
-                <div class="section-title">Recomendaciones</div>
-                <div class="long-text">
-                    1. Ejecutar rutina de lubricación al conjunto motor-bomba siguiendo las especificaciones del fabricante.
-                    2. Planificar la intervención del conjunto motor-bomba para revisión y posible reemplazo de rodamientos.
-                    3. Realizar balanceo dinámico del rotor y verificar alineación entre motor y bomba.
-                    4. Mantener en observación y monitorear vibración al menos con equipo colector de valores overall cada 72 horas de operación.
-                    5. Verificar estado de los acoples y sellos mecánicos durante la próxima intervención.
-                </div>
-            </div>
-        </div>
+        <div id="reportText"></div>
         
-        <div class="modal-footer">
-            <button class="btn-close">Cerrar</button>
-        </div>
+        <div id="result"></div>
     </div>
-</div>
 
+    <script>
+        const reportContent = `Análisis de Modos y Efectos de Falla (AMEF) - BAH-0004
+
+Modo de Falla Potencial\tEfecto Potencial\tCausa Potencial\tControles Actuales\tS\tO\tD\tNPR\tAcciones Recomendadas\tResponsable
+Falla de rodamiento (Bomba)\tVibración moderada (obs.), tensión en tuberías, daño en base.\tDesgaste avanzado (daño severo obs.), falta de anclajes en la bomba, sobrecalentamiento (riesgo).\tInspección de vibraciones (detectó nivel moderado), Termografía (temperaturas OK).\t8\t9\t4\t342\tReanclarar el motor adecuadamente. Verificar tensión en las tuberías. Mantener en observación y monitorear vibración al menos con equipo colector de valores overall.\tTécnico Mecánico / Supervisor de Mantenimiento
+Planificación de Mantenimiento - BAH-0004
+
+Fecha Estimada Inicio (AAAA-MM-DD)\tActividad de Mantenimiento\tResponsable\tNotas
+2025-04-03\tVerificación de Falla - BAH-0004: Inspección visual de rodamientos y base.\tTécnico Predictivo / Supervisor de Mantenimiento\tConfirmar éxito de la inspección.
+2025-04-05\tRevisión de Anclajes - Bomba BAH-0004: Verificar anclajes adecuados.\tEquipo de Mantenimiento Mecánico\tRealizar la revisión y ajuste de los anclajes según sea necesario.
+Tareas Individuales
+
+Fecha: 2025-04-03, Actividad: Verificación de Falla - BAH-0004: Inspección visual de rodamientos y base, Equipo: BAH-0004
+Fecha: 2025-04-05, Actividad: Revisión de Anclajes - Bomba BAH-0004: Verificar anclajes adecuados, Equipo: BAH-0004`;
+
+        function showReport() {
+            const reportDiv = document.getElementById('reportText');
+            reportDiv.textContent = reportContent;
+            reportDiv.style.display = 'block';
+            document.getElementById('extractBtn').disabled = false;
+        }
+
+        function extractTasks() {
+            const reportText = document.getElementById('reportText').textContent;
+            const resultDiv = document.getElementById('result');
+            
+            // Buscar la sección "Tareas Individuales"
+            const tasksSectionIndex = reportText.indexOf('Tareas Individuales');
+            if (tasksSectionIndex === -1) {
+                resultDiv.innerHTML = '<p>No se encontró la sección "Tareas Individuales" en el texto.</p>';
+                return;
+            }
+            
+            // Extraer el contenido después de "Tareas Individuales"
+            const tasksText = reportText.substring(tasksSectionIndex);
+            
+            // Expresión regular para encontrar las tareas
+            const taskRegex = /Fecha:\s*(\d{4}-\d{2}-\d{2}),\s*Actividad:\s*([^,]+),\s*Equipo:\s*([^\n]+)/g;
+            let matches;
+            let tasks = [];
+            
+            while ((matches = taskRegex.exec(tasksText)) !== null) {
+                tasks.push({
+                    fecha: matches[1],
+                    actividad: matches[2].trim(),
+                    equipo: matches[3].trim()
+                });
+            }
+            
+            // Mostrar resultados
+            if (tasks.length === 0) {
+                resultDiv.innerHTML = '<p>No se encontraron tareas en el formato esperado.</p>';
+            } else {
+                let html = '<h2>Tareas Extraídas:</h2>';
+                tasks.forEach(task => {
+                    html += `
+                    <div class="task">
+                        <p><strong>Fecha:</strong> ${task.fecha}</p>
+                        <p><strong>Título:</strong> ${task.actividad}</p>
+                        <p><strong>Equipo:</strong> ${task.equipo}</p>
+                    </div>`;
+                });
+                resultDiv.innerHTML = html;
+            }
+        }
+    </script>
 </body>
 </html>
