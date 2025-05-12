@@ -5,7 +5,7 @@ function loadSidebar() {
     sidebarContainer.id = 'sidebar-container';
     
     // Cargar el contenido del sidebar
-    fetch('sidebar.html')
+    fetch('sidebar.php')
         .then(response => response.text())
         .then(data => {
             sidebarContainer.innerHTML = data;

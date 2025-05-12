@@ -22,28 +22,28 @@ $hayEventos = mysqli_num_rows($result) > 0;
     <title>Próximos Mantenimientos</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a202c;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #F9FAFB;
             margin: 0;
-            color: #e2e8f0;
+            color: #1F2937;
         }
 
         .notificaciones-container {
             max-width: 800px;
-            margin: 0 auto;
-            background-color: #2d3748;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            border: 1px solid #4a5568;
+            border: 1px solid #E5E7EB;
         }
 
         .notificaciones-header {
-            background-color: #4a5568;
+            background-color: #2563EB;
             color: white;
-            padding: 16px 24px;
-            font-size: 1.5em;
-            font-weight: bold;
+            padding: 18px 24px;
+            font-size: 1.25rem;
+            font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -56,16 +56,18 @@ $hayEventos = mysqli_num_rows($result) > 0;
         }
 
         .notificacion-item {
-            padding: 16px 24px;
-            border-bottom: 1px solid #4a5568;
+            padding: 18px 24px;
+            border-bottom: 1px solid #E5E7EB;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s;
+            transition: all 0.2s ease;
         }
 
         .notificacion-item:hover {
-            background-color: #3c4657;
+            background-color: #F9FAFB;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .notificacion-item:last-child {
@@ -77,56 +79,77 @@ $hayEventos = mysqli_num_rows($result) > 0;
         }
 
         .notificacion-titulo {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 8px;
-            color: #ffffff;
-            font-size: 1.1em;
+            color: #111827;
+            font-size: 1.05rem;
         }
 
         .notificacion-equipo {
-            font-style: italic;
-            color: #a0aec0;
+            color: #6B7280;
             margin-bottom: 8px;
-            font-size: 0.95em;
+            font-size: 0.95rem;
         }
 
         .notificacion-fecha {
-            color: #a0aec0;
-            font-size: 0.9em;
-            background-color: #4a5568;
-            padding: 4px 8px;
-            border-radius: 4px;
+            color: #FFFFFF;
+            font-size: 0.85rem;
+            background-color: #10B981;
+            padding: 4px 10px;
+            border-radius: 20px;
             display: inline-block;
+            font-weight: 500;
         }
 
         .sin-notificaciones {
-            padding: 24px;
+            padding: 30px;
             text-align: center;
-            color: #a0aec0;
-            font-style: italic;
+            color: #6B7280;
+            font-size: 0.95rem;
         }
 
         .badge {
-            background-color: #3b82f6;
-            color: white;
+            background-color: #FFFFFF;
+            color: #2563EB;
             border-radius: 50%;
             width: 28px;
             height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9em;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .badge-empty {
-            background-color: #4a5568;
+            background-color: #E5E7EB;
+            color: #6B7280;
+        }
+
+        .main-content {
+            margin-left: 250px; /* Ajuste para el sidebar */
+            padding: 20px;
+            transition: margin 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .notificaciones-container {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
         }
     </style>
-        <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
-                    // Actualizar el badge de notificaciones periódicamente
-                    function updateNotificationBadge() {
+            // Actualizar el badge de notificaciones periódicamente
+            function updateNotificationBadge() {
                 fetch('get_notifications_count.php')
                     .then(response => response.json())
                     .then(data => {
@@ -155,6 +178,7 @@ $hayEventos = mysqli_num_rows($result) > 0;
 </head>
 
 <body>
+    <!-- Sidebar se cargará aquí -->
     <main class="main-content">
         <div class="notificaciones-container">
             <div class="notificaciones-header">
@@ -173,8 +197,7 @@ $hayEventos = mysqli_num_rows($result) > 0;
                             <div class="notificacion-info">
                                 <div class="notificacion-titulo"><?php echo htmlspecialchars($evento['titulo']); ?></div>
                                 <?php if (!empty($evento['equipo'])): ?>
-                                    <div class="notificacion-equipo">Equipo: <?php echo htmlspecialchars($evento['equipo']); ?>
-                                    </div>
+                                    <div class="notificacion-equipo">Equipo: <?php echo htmlspecialchars($evento['equipo']); ?></div>
                                 <?php endif; ?>
                                 <div class="notificacion-fecha">
                                     <?php
@@ -200,3 +223,4 @@ $hayEventos = mysqli_num_rows($result) > 0;
 <?php
 // Cerrar la conexión a la base de datos
 mysqli_close($conn);
+?>

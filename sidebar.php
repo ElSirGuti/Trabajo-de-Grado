@@ -1,0 +1,278 @@
+<?php
+include 'auth.php';
+require_once 'conexion.php';
+?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-family: 'Lato', sans-serif;
+        line-height: 1;
+    }
+
+    :root {
+        --sidebar-background-color: #313443;
+        --active-sidebar-link-color: #22252E;
+        --hover-sidebar-link-color: #22252E;
+        --active-link-color: #98D7EC;
+        --tooltip-background-color: #313443;
+    }
+
+    .sidebar-navigation {
+        position: fixed;
+        min-height: 100vh;
+        width: 80px;
+        background-color: var(--sidebar-background-color);
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-navigation ul {
+        text-align: center;
+        color: white;
+    }
+
+    .sidebar-logo {
+        padding: 15px 0;
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+
+    .sidebar-navigation li {
+        padding: 0;
+    }
+
+    .sidebar-navigation a {
+        display: block;
+        padding: 20px 0;
+        cursor: pointer;
+        transition: all ease-out 120ms;
+        color: white;
+        text-decoration: none;
+    }
+
+    .sidebar-navigation i {
+        display: block;
+        font-size: 20px;
+        color: white;
+        transition: all ease 450ms;
+    }
+
+    .sidebar-navigation .tooltip {
+        display: inline-block;
+        position: absolute;
+        background-color: var(--tooltip-background-color);
+        padding: 8px 15px;
+        border-radius: 3px;
+        margin-top: -26px;
+        left: 90px;
+        opacity: 0;
+        visibility: hidden;
+        font-size: 13px;
+        letter-spacing: .5px;
+        z-index: 50;
+    }
+
+    .sidebar-navigation .tooltip:before {
+        content: '';
+        display: block;
+        position: absolute;
+        left: -4px;
+        top: 10px;
+        transform: rotate(45deg);
+        width: 10px;
+        height: 10px;
+        background-color: inherit;
+    }
+
+    .sidebar-navigation a:hover {
+        background-color: var(--hover-sidebar-link-color);
+    }
+
+    .sidebar-navigation a:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar-navigation a.active {
+        background-color: var(--active-sidebar-link-color);
+    }
+
+    .sidebar-navigation a.active i {
+        color: var(--active-link-color);
+    }
+
+    .main-content {
+        margin-left: 80px;
+        padding: 1.5rem;
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-toggle {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        display: none;
+        background: var(--sidebar-background-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar-navigation {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-navigation.show {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .sidebar-toggle {
+            display: block;
+        }
+
+        body.sidebar-open {
+            overflow: hidden;
+        }
+
+        body.sidebar-open .sidebar-overlay {
+            display: block;
+        }
+    }
+</style>
+
+<button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fa fa-bars"></i>
+</button>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<nav class="sidebar-navigation" id="sidebar">
+    <div class="sidebar-logo">
+        <img src="imagenes/rsc.png" alt="Logo RSC">
+    </div>
+    <ul>
+        <li>
+            <a href="tabla.php">
+                <i class="fa fa-file-text"></i>
+                <span class="tooltip">Informes</span>
+            </a>
+        </li>
+        <li>
+            <a href="calendario.php">
+                <i class="fa fa-calendar"></i>
+                <span class="tooltip">Calendario</span>
+            </a>
+        </li>
+        <li>
+            <a href="estadisticas.php">
+                <i class="fa fa-bar-chart"></i>
+                <span class="tooltip">Estadísticas</span>
+            </a>
+        </li>
+        <li class="notification-item">
+            <a href="notificaciones.php">
+                <i class="fa fa-bell"></i>
+                <span class="tooltip">Notificaciones</span>
+                <?php if (isset($hayEventos) && $hayEventos): ?>
+                    <span class="notification-badge"><?php echo isset($result) ? mysqli_num_rows($result) : 0; ?></span>
+                <?php endif; ?>
+            </a>
+        </li>
+        <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'Tecnico'): ?>
+            <li>
+                <a href="usuarios.php">
+                    <i class="fa fa-users"></i>
+                    <span class="tooltip">Usuarios</span>
+                </a>
+            </li>
+        <?php endif; ?>
+        <li>
+            <a href="chatbot.php">
+                <i class="fa fa-comments"></i>
+                <span class="tooltip">Chatbot</span>
+            </a>
+        </li>
+        <li>
+            <a href="logout.php">
+                <i class="fa fa-sign-out"></i>
+                <span class="tooltip">Cerrar sesión</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Marcar como activo el item del menú correspondiente
+        const currentPage = window.location.pathname.split('/').pop();
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+
+        // Toggle del sidebar en móviles
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        // Cerrar sidebar al hacer clic en el overlay
+        sidebarOverlay.addEventListener('click', function () {
+            toggleSidebar();
+        });
+
+        // Cerrar sidebar al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+                if (!sidebar.contains(e.target)) {
+                    toggleSidebar();
+                }
+            }
+        });
+
+        // Evitar propagación del clic en el sidebar
+        sidebar.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            document.body.classList.toggle('sidebar-open');
+        }
+    });
+</script>

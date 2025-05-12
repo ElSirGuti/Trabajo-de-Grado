@@ -334,24 +334,25 @@ $stmt_lista_hallazgos->close();
                 <div class="mb-4">
                     <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad:</label>
                     <select name="prioridad" required class="mt-1 p-2 w-full border rounded-md">
-                        <option value="1">1. Equipo en condiciones de vibración severas, debe tomarse acción inmediata
+                        <option value="1">🔴 1. Equipo en condiciones de vibración severas, debe tomarse acción inmediata 
                         </option>
-                        <option value="2">2. Equipo en condición de vibración crítica, debe tomarse acción planificada
+                        <option value="2">🟠 2. Equipo en condición de vibración crítica, debe tomarse acción planificada 
                         </option>
-                        <option value="3">3. Equipo bajo observación, monitorear operación y planificar mantenimiento
+                        <option value="3">🟡 3. Equipo bajo observación, monitorear operación y planificar mantenimiento 
                         </option>
-                        <option value="4">4. Condición normal de operación</option>
-                        <option value="5">F. Fuera de Servicio</option>
+                        <option value="4">🟢 4. Condición normal de operación </option>
+                        <option value="5">⚫ F. Fuera de Servicio </option>
                     </select>
                 </div>
                 <div class="mb-4">
                     <label for="nivel_vibracion" class="block text-sm font-medium text-gray-700">Nivel de Vibración
                         Encontrado:</label>
                     <select name="nivel_vibracion" required class="mt-1 p-2 w-full border rounded-md">
-                        <option value="Severo">Severo</option>
-                        <option value="Alto">Alto</option>
-                        <option value="Moderado">Moderado</option>
-                        <option value="Bajo">Bajo</option>
+                        <option value="Severo">🔴 Severo</option>
+                        <option value="Alto">🟠 Alto</option>
+                        <option value="Moderado">🟡 Moderado</option>
+                        <option value="Bajo">🟢 Bajo</option>
+                        <option value="Ninguno">⚫ Ninguno</option>
                     </select>
                 </div>
                 <button type="button" onclick="goToStep(4)"
@@ -452,7 +453,7 @@ $stmt_lista_hallazgos->close();
             switch (step) {
                 case 1: progressWidth = 0; console.log(progressWidth); break;
                 case 2: progressWidth = 20; console.log(progressWidth); break;
-                case 3: progressWidth = 35; console.log(progressWidth); break;
+                case 3: progressWidth = 38; console.log(progressWidth); break;
                 case 4: progressWidth = 55; console.log(progressWidth); break;
                 case 5: progressWidth = 75; console.log(progressWidth); break;
                 case 6: progressWidth = 95; console.log(progressWidth); break;

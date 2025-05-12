@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_usuario'])) {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,8 +18,8 @@ if (!isset($_SESSION['id_usuario'])) {
     <script src="sidebar-loader.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-                    // Actualizar el badge de notificaciones periódicamente
-                    function updateNotificationBadge() {
+            // Actualizar el badge de notificaciones periódicamente
+            function updateNotificationBadge() {
                 fetch('get_notifications_count.php')
                     .then(response => response.json())
                     .then(data => {
@@ -62,7 +63,7 @@ if (!isset($_SESSION['id_usuario'])) {
         }
 
         .modal-contenido {
-            background-color: #ffffff;
+            background-color: #FFFFFF;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -74,7 +75,7 @@ if (!isset($_SESSION['id_usuario'])) {
         }
 
         .cerrar {
-            color: #aaaaaa;
+            color: #6B7280;
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -86,14 +87,14 @@ if (!isset($_SESSION['id_usuario'])) {
 
         .cerrar:hover,
         .cerrar:focus {
-            color: #000;
+            color: #1F2937;
             text-decoration: none;
         }
 
         .modal-contenido h1 {
-            color: #333;
+            color: #1F2937;
             margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #F3F4F6;
             padding-bottom: 10px;
         }
 
@@ -104,13 +105,13 @@ if (!isset($_SESSION['id_usuario'])) {
 
         .modal-contenido li {
             padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #F3F4F6;
         }
 
         .modal-contenido li:last-child {
             border-bottom: none;
         }
-        
+
         /* Contenedor principal de gráficos */
         .dashboard-container {
             display: grid;
@@ -120,59 +121,78 @@ if (!isset($_SESSION['id_usuario'])) {
             width: 100%;
             max-width: 1800px;
             margin: 0 auto;
+            background-color: #FFFFFF;
         }
-        
-        /* Estilo para cada tarjeta de gráfico */
+
+        /* Estilo para cada tarjeta de gráfico - AHORA CON FONDO CLARO */
         .chart-card {
-            background: #2d3748;
+            background: #FFFFFF;
             border-radius: 8px;
             padding: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            height: 400px; /* Altura fija para todas las tarjetas */
+            height: 400px;
             display: flex;
             flex-direction: column;
+            border: 1px solid #E5E7EB;
+            /* Borde gris suave */
         }
-        
+
         .chart-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #2563EB;
+            /* Borde azul al hacer hover */
         }
-        
+
         .chart-title {
-            color: #fff;
+            color: #1F2937;
+            /* Texto oscuro */
             margin-bottom: 15px;
             font-size: 1.2rem;
             text-align: center;
             padding: 5px;
+            border-bottom: 1px solid #E5E7EB;
+            /* Borde gris suave */
+            font-weight: 600;
+            /* Más peso para mejor legibilidad */
         }
-        
+
         .chart-wrapper {
             flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
+
+        /* Ajustes para los gráficos con fondo claro */
+        .google-visualization-tooltip {
+            background-color: #FFFFFF !important;
+            border: 1px solid #E5E7EB !important;
+            color: #1F2937 !important;
+        }
+
         /* Ajustes responsivos */
         @media (max-width: 1200px) {
             .dashboard-container {
                 grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             }
         }
-        
+
         @media (max-width: 768px) {
             .dashboard-container {
                 grid-template-columns: 1fr;
             }
-            
+
             .chart-card {
                 height: 350px;
             }
         }
     </style>
-    
+
 </head>
-<body style="background-color: #1a202c;">
+
+<body style="background-color: #F3F4F6;">
     <main class="main-content">
         <!-- Modal para detalles -->
         <div id="miModal" class="modal" style="display: none;">
@@ -210,14 +230,32 @@ if (!isset($_SESSION['id_usuario'])) {
                             'width': '100%',
                             'height': '100%',
                             'pieHole': 0.4,
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'labeled', 
-                                textStyle: { color: '#fff' } 
+                            'legend': {
+                                position: 'labeled',
+                                textStyle: {
+                                    color: '#1F2937' // Texto oscuro para leyenda
+                                }
                             },
-                            'chartArea': { width: '90%', height: '80%' },
-                            'tooltip': { textStyle: { color: '#333' } }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
+                            },
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            }
                         };
                         var chart = new google.visualization.PieChart(document.getElementById('chart_tipo_equipo'));
                         google.visualization.events.addListener(chart, 'select', function () {
@@ -260,13 +298,32 @@ if (!isset($_SESSION['id_usuario'])) {
                             'width': '100%',
                             'height': '100%',
                             'pieHole': 0.4,
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'labeled', 
-                                textStyle: { color: '#fff' } 
+                            'legend': {
+                                position: 'labeled',
+                                textStyle: {
+                                    color: '#1F2937' // Texto oscuro para leyenda
+                                }
                             },
-                            'chartArea': { width: '90%', height: '80%' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
+                            },
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            }
                         };
                         var chart = new google.visualization.PieChart(document.getElementById('chart_ubicacion'));
                         google.visualization.events.addListener(chart, 'select', function () {
@@ -309,13 +366,32 @@ if (!isset($_SESSION['id_usuario'])) {
                             'width': '100%',
                             'height': '100%',
                             'pieHole': 0.4,
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'labeled', 
-                                textStyle: { color: '#fff' } 
+                            'legend': {
+                                position: 'labeled',
+                                textStyle: {
+                                    color: '#1F2937' // Texto oscuro para leyenda
+                                }
                             },
-                            'chartArea': { width: '90%', height: '80%' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
+                            },
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            }
                         };
                         var chart = new google.visualization.PieChart(document.getElementById('chart_cliente'));
                         google.visualization.events.addListener(chart, 'select', function () {
@@ -357,19 +433,29 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             }
                         };
                         var chart = new google.visualization.ColumnChart(document.getElementById('chart_prioridad'));
@@ -385,7 +471,7 @@ if (!isset($_SESSION['id_usuario'])) {
                     window.addEventListener('resize', drawChartPrioridad);
                 </script>
             </div>
-            
+
             <!-- Equipos por nivel de vibración -->
             <?php
             $query = "SELECT nivel_vibracion, COUNT(*) AS count FROM diagnosticos GROUP BY nivel_vibracion";
@@ -412,19 +498,29 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             }
                         };
                         var chart = new google.visualization.ColumnChart(document.getElementById('chart_vibracion'));
@@ -467,21 +563,30 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             },
-                            'bars': 'horizontal'
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            }
                         };
                         var chart = new google.visualization.BarChart(document.getElementById('chart_fallas'));
                         google.visualization.events.addListener(chart, 'select', function () {
@@ -523,21 +628,30 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             },
-                            'bars': 'horizontal'
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            }
                         };
                         var chart = new google.visualization.BarChart(document.getElementById('chart_hallazgos'));
                         google.visualization.events.addListener(chart, 'select', function () {
@@ -579,19 +693,29 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1', '#48bb78', '#f6ad55', '#f56565', '#9f7aea'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             }
                         };
                         var chart = new google.visualization.ColumnChart(document.getElementById('chart_inspecciones_equipo'));
@@ -634,19 +758,29 @@ if (!isset($_SESSION['id_usuario'])) {
                         var options = {
                             'width': '100%',
                             'height': '100%',
-                            'colors': ['#4299e1'],
+                            'pieHole': 0.4,
+                            'colors': ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'], // Colores de la nueva paleta
                             'backgroundColor': 'transparent',
-                            'legend': { 
-                                position: 'none' 
+                            'legend': {
+                                position: 'none' // Esto elimina la leyenda,
                             },
-                            'chartArea': { width: '85%', height: '80%' },
-                            'hAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'chartArea': {
+                                width: '90%',
+                                height: '80%',
+                                backgroundColor: {
+                                    stroke: '#E5E7EB', // Borde del área del gráfico
+                                    strokeWidth: 1
+                                }
                             },
-                            'vAxis': { 
-                                textStyle: { color: '#fff' },
-                                titleTextStyle: { color: '#fff' }
+                            'hAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
+                            },
+                            'vAxis': {
+                                textStyle: { color: '#1F2937' },
+                                titleTextStyle: { color: '#1F2937' },
+                                gridlines: { color: '#E5E7EB' } // Líneas de grid suaves
                             },
                             'pointSize': 5,
                             'lineWidth': 2
@@ -665,7 +799,7 @@ if (!isset($_SESSION['id_usuario'])) {
                 </script>
             </div>
         </div>
-        
+
         <!-- Script para manejar todos los modales -->
         <script type="text/javascript">
             // Función genérica para mostrar detalles
@@ -699,7 +833,7 @@ if (!isset($_SESSION['id_usuario'])) {
             };
 
             // Redibujar gráficos al cambiar el tamaño de la ventana
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 if (typeof drawChartTipoEquipo === 'function') drawChartTipoEquipo();
                 if (typeof drawChartUbicacion === 'function') drawChartUbicacion();
                 if (typeof drawChartCliente === 'function') drawChartCliente();
@@ -713,4 +847,5 @@ if (!isset($_SESSION['id_usuario'])) {
         </script>
     </main>
 </body>
+
 </html>

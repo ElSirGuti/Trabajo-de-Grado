@@ -8,91 +8,108 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* Estilos personalizados con tu paleta de colores */
+        /* Estilos personalizados con la nueva paleta */
         body {
-            background-color: #1a202c;
+            background-color: #F9FAFB;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .login-container {
-            background-image: url('https://source.unsplash.com/1600x900/?nature,water');
+            background-image: url('https://source.unsplash.com/1600x900/?technology,modern');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.2;
+            opacity: 0.05;
             position: absolute;
             width: 100%;
             height: 100%;
         }
 
         .login-form {
-            background-color: #2d3748;
-            border: 1px solid #4a5568;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #FFFFFF;
+            border: 1px solid #F3F4F6;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 20px 40px rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .input-field {
-            background-color: #4a5568;
-            border-color: #4a5568;
-            color: #e2e8f0;
+            background-color: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            color: #1F2937;
+            transition: all 0.3s ease;
         }
 
         .input-field:focus {
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: #FFFFFF;
         }
 
         .btn-primary {
-            background-color: #4299e1;
+            background-color: #2563EB;
             color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-primary:hover {
-            background-color: #3182ce;
+            background-color: #1D4ED8;
+            transform: translateY(-1px);
         }
 
         .text-muted {
-            color: #a0aec0;
+            color: #6B7280;
         }
 
         .text-accent {
-            color: #4299e1;
+            color: #2563EB;
+            transition: all 0.2s ease;
+        }
+
+        .text-accent:hover {
+            color: #1D4ED8;
         }
 
         .toggle-password {
-            color: #a0aec0;
+            color: #6B7280;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .toggle-password:hover {
-            color: #e2e8f0;
+            color: #2563EB;
         }
     </style>
+
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
-    <!-- Fondo con opacidad -->
+    <!-- Fondo sutil -->
     <div class="login-container"></div>
 
     <!-- Formulario de login -->
-    <div class="login-form relative z-10 w-full max-w-md p-8 rounded-lg">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">BIENVENIDO/A</h1>
-            <p class="text-muted">Sistema de Mantenimiento Proactivo de R.S.C. Services C.A.</p>
+    <div class="login-form relative z-10 w-full max-w-md p-8" style="min-height: 450px;">
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-gray-900">BIENVENIDO/A</h1>
         </div>
 
         <form id="loginForm" class="space-y-6">
             <!-- Campo de correo -->
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Correo Electrónico</label>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
                 <input type="email" id="email" name="email" required
-                    class="input-field w-full px-4 py-3 rounded-md focus:outline-none focus:ring-1">
+                    class="input-field w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-1 text-gray-900">
             </div>
 
             <!-- Campo de contraseña -->
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
                 <div class="relative">
                     <input type="password" id="password" name="password" required
-                        class="input-field w-full px-4 py-3 rounded-md focus:outline-none focus:ring-1 pr-10">
+                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-1 pr-10 text-gray-900">
                     <button type="button" onclick="togglePasswordVisibility()"
                         class="toggle-password absolute right-3 top-3">
                         👁️
@@ -101,7 +118,7 @@
             </div>
 
             <!-- Botón de submit -->
-            <button type="submit" class="btn-primary w-full py-3 px-4 rounded-md font-medium transition-colors">
+            <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg font-medium">
                 Iniciar Sesión
             </button>
         </form>
@@ -110,7 +127,7 @@
         <div class="mt-6 text-center">
             <p class="text-sm text-muted">
                 ¿Problemas para acceder? Contacta al
-                <a href="#" class="text-accent hover:underline">administrador</a>
+                <a href="#" class="text-accent hover:underline font-medium">administrador</a>
             </p>
         </div>
     </div>
@@ -132,8 +149,8 @@
             e.preventDefault();
 
             // Obtener valores del formulario
-            const correo = document.getElementById('email').value; // El ID del input sigue siendo email
-            const contrasena = document.getElementById('password').value; // El ID del input sigue siendo password
+            const correo = document.getElementById('email').value;
+            const contrasena = document.getElementById('password').value;
 
             // Validación básica
             if (!correo || !contrasena) {

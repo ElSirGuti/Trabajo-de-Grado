@@ -18,8 +18,8 @@ try {
     error_log("Email recibido: " . $correo);
     error_log("Password hash recibido: " . $contrasena);
 
-    // Consulta SQL para verificar las credenciales
-    $stmt = $conn->prepare("SELECT id_usuario, nombre FROM usuarios WHERE correo = ? AND contrasena = ?");
+    // Consulta SQL para verificar las credenciales y obtener el rol
+    $stmt = $conn->prepare("SELECT id_usuario, nombre, rol FROM usuarios WHERE correo = ? AND contrasena = ?");
     if (!$stmt) {
         throw new Exception('Error de preparación: ' . $conn->error);
     }
@@ -32,15 +32,16 @@ try {
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id_usuario, $nombre);
+        $stmt->bind_result($id_usuario, $nombre, $rol); // Vincula la variable $rol
         $stmt->fetch();
 
-        // Inicia la sesión y guarda información del usuario
+        // Inicia la sesión y guarda información del usuario incluyendo el rol
         $_SESSION['id_usuario'] = $id_usuario;
         $_SESSION['nombre'] = $nombre;
+        $_SESSION['rol'] = $rol; // ¡Guarda el rol en la sesión!
 
         echo json_encode(['success' => true]);
-        error_log("Inicio de sesión exitoso para: " . $correo);
+        error_log("Inicio de sesión exitoso para: " . $correo . " con rol: " . $rol);
     } else {
         throw new Exception('Credenciales incorrectas');
         error_log("Inicio de sesión fallido para: " . $correo);

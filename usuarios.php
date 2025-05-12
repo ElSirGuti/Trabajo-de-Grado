@@ -1,11 +1,9 @@
 <?php
-session_start();
-require_once 'conexion.php';
+include 'auth.php';
+verificarRol(['Super', 'Administrador']);
 
-if (!isset($_SESSION['id_usuario'])) {
-    header("Location: index.php");
-    exit();
-}
+// session_start();
+require_once 'conexion.php';
 
 // Obtener lista de usuarios
 $query = "SELECT id_usuario, nombre, correo, rol FROM usuarios";
@@ -16,6 +14,9 @@ if ($result->num_rows > 0) {
         $usuarios[] = $row;
     }
 }
+
+// Obtener el rol del usuario autenticado
+$usuario_autenticado_rol = $_SESSION['rol'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -28,19 +29,20 @@ if ($result->num_rows > 0) {
     <script src="sidebar-loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
+        /* Contenedor principal con nuevo esquema de colores */
         .user-management-container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 2rem;
-            background-color: #2d3748;
+            background-color: #FFFFFF;
+            /* Fondo blanco */
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E5E7EB;
+            /* Borde gris claro */
         }
 
-        .table-container {
-            overflow-x: auto;
-        }
-
+        /* Tabla de usuarios */
         .table-users {
             width: 100%;
             border-collapse: collapse;
@@ -50,45 +52,76 @@ if ($result->num_rows > 0) {
         .table-users td {
             padding: 0.75rem 1rem;
             text-align: left;
-            border-bottom: 1px solid #4a5568;
-            color: #e2e8f0;
+            border-bottom: 1px solid #E5E7EB;
+            /* Borde gris claro */
+            color: #1F2937;
+            /* Texto oscuro */
         }
 
         .table-users th {
-            background-color: #4a5568;
+            background-color: #F3F4F6;
+            /* Fondo gris muy claro */
             font-weight: 600;
+            color: #1F2937;
+            /* Texto oscuro */
         }
 
         .table-users tr:hover {
-            background-color: #4a5568;
+            background-color: #F3F4F6;
+            /* Fondo gris muy claro al hacer hover */
         }
 
+        /* Botones de acción */
         .action-btn {
             padding: 0.25rem 0.5rem;
             margin: 0 0.25rem;
             border-radius: 0.25rem;
             font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
         .edit-btn {
-            background-color: #3b82f6;
+            background-color: #2563EB;
+            /* Azul vibrante */
             color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #1D4ED8;
+            /* Azul más oscuro al hover */
         }
 
         .delete-btn {
-            background-color: #ef4444;
+            background-color: #EF4444;
+            /* Rojo */
             color: white;
         }
 
+        .delete-btn:hover {
+            background-color: #DC2626;
+            /* Rojo más oscuro al hover */
+        }
+
         .add-user-btn {
-            background-color: #10b981;
+            background-color: #10B981;
+            /* Verde esmeralda */
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 0.25rem;
             margin-bottom: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        /* Modal styles */
+        .add-user-btn:hover {
+            background-color: #059669;
+            /* Verde más oscuro al hover */
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -103,21 +136,27 @@ if ($result->num_rows > 0) {
         }
 
         .modal-content {
-            background-color: #2d3748;
+            background-color: #FFFFFF;
+            /* Fondo blanco */
             padding: 2rem;
             border-radius: 0.5rem;
             width: 90%;
             max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E5E7EB;
         }
 
         .modal-title {
-            color: white;
+            color: #1F2937;
+            /* Texto oscuro */
             font-size: 1.25rem;
             margin-bottom: 1.5rem;
+            font-weight: 600;
         }
 
         .close-modal {
-            color: #aaa;
+            color: #6B7280;
+            /* Gris neutro */
             float: right;
             font-size: 1.5rem;
             font-weight: bold;
@@ -125,9 +164,11 @@ if ($result->num_rows > 0) {
         }
 
         .close-modal:hover {
-            color: white;
+            color: #1F2937;
+            /* Texto oscuro al hover */
         }
 
+        /* Formulario */
         .form-group {
             margin-bottom: 1rem;
         }
@@ -135,104 +176,131 @@ if ($result->num_rows > 0) {
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #e2e8f0;
+            color: #1F2937;
+            /* Texto oscuro */
+            font-weight: 500;
         }
 
         .form-input {
             width: 100%;
             padding: 0.5rem;
-            background-color: #4a5568;
-            border: 1px solid #4a5568;
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
             border-radius: 0.25rem;
-            color: black;
-            /* Texto negro por defecto */
+            color: #1F2937;
+            /* Texto oscuro */
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: #2563EB;
+            /* Azul vibrante */
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
         }
 
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-        }
-
-        .submit-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        .submit-btn:hover {
-            background-color: #2563eb;
-        }
-
-        .cancel-btn {
-            background-color: #4a5568;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            border: none;
-            cursor: pointer;
-            margin-right: 1rem;
-        }
-
-        .cancel-btn:hover {
-            background-color: #2d3748;
-        }
-
-        /* Estilo para el select */
+        /* Select personalizado */
         .form-select {
             width: 100%;
             padding: 0.5rem;
-            background-color: #4a5568;
-            border: 1px solid #4a5568;
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
             border-radius: 0.25rem;
-            color: white;
-            /* Texto blanco en select */
+            color: #1F2937;
             appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%231F2937' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 12px;
         }
 
-        /* Estilo mejorado para el campo de contraseña */
-        .password-container {
-            position: relative;
-            margin-bottom: 1rem;
+        .form-select:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
         }
 
+        /* Botones del formulario */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .submit-btn {
+            background-color: #2563EB !important;
+            /* Azul vibrante */
+            color: white;
+            /* Texto gris oscuro */
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #1D4ED8;
+            /* Azul más oscuro */
+        }
+
+        .cancel-btn {
+            background-color: #F3F4F6;
+            /* Gris muy claro */
+            color: #1F2937;
+            /* Texto oscuro */
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background-color: #E5E7EB;
+            /* Gris claro */
+        }
+
+        /* Asegurar que el contenedor de contraseña tenga el mismo ancho */
+        .password-container {
+            width: 100%;
+        }
+
+        /* Estilo específico para el input de contraseña */
         .password-input {
             width: 100%;
             padding: 0.5rem;
-            padding-right: 2.5rem;
-            background-color: #4a5568;
-            border: 1px solid #4a5568;
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
             border-radius: 0.25rem;
-            color: black;
-            /* Texto negro en password */
+            color: #1F2937;
+            /* Texto oscuro */
         }
 
+        /* Posición del ícono de mostrar contraseña */
         .toggle-password {
             position: absolute;
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #a0aec0;
+            color: #6B7280;
+            /* Gris neutro */
+            background: none;
+            border: none;
+            padding: 0;
         }
 
+        /* Contenedor relativo para el input de contraseña */
+        .password-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+
+        /* Indicador de fortaleza de contraseña */
         .password-strength {
             height: 4px;
-            background: #e2e8f0;
+            background: #E5E7EB;
             margin-top: 0.5rem;
             border-radius: 2px;
             overflow: hidden;
@@ -247,7 +315,8 @@ if ($result->num_rows > 0) {
         .password-requirements {
             margin-top: 0.5rem;
             font-size: 0.75rem;
-            color: #a0aec0;
+            color: #6B7280;
+            /* Gris neutro */
         }
 
         .requirement {
@@ -257,13 +326,20 @@ if ($result->num_rows > 0) {
         }
 
         .requirement-satisfied {
-            color: #48bb78;
+            color: #10B981;
+            /* Verde esmeralda */
+        }
+
+        /* Fondo de la página */
+        body {
+            background-color: #F3F4F6 !important;
+            /* Gris muy claro */
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-                    // Actualizar el badge de notificaciones periódicamente
-                    function updateNotificationBadge() {
+            // Actualizar el badge de notificaciones periódicamente
+            function updateNotificationBadge() {
                 fetch('get_notifications_count.php')
                     .then(response => response.json())
                     .then(data => {
@@ -293,7 +369,7 @@ if ($result->num_rows > 0) {
 <body style="background-color: #1a202c;">
     <main class="main-content">
         <div class="user-management-container">
-            <h1 class="text-2xl font-bold text-white mb-6">Administración de Usuarios</h1>
+            <h1 class="text-2xl font-bold text-black mb-6">Administración de Usuarios</h1>
 
             <button id="addUserBtn" class="add-user-btn">+ Agregar Usuario</button>
 
@@ -308,16 +384,20 @@ if ($result->num_rows > 0) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($usuarios as $usuario): ?>
+                    <?php foreach ($usuarios as $usuario): ?>
                             <tr data-id="<?php echo $usuario['id_usuario']; ?>">
                                 <td><?php echo htmlspecialchars($usuario['nombre']); ?></td>
                                 <td><?php echo htmlspecialchars($usuario['correo']); ?></td>
                                 <td><?php echo htmlspecialchars($usuario['rol']); ?></td>
                                 <td>
-                                    <button class="action-btn edit-btn"
-                                        onclick="editUser(<?php echo $usuario['id_usuario']; ?>)">Editar</button>
-                                    <button class="action-btn delete-btn"
-                                        onclick="confirmDelete(<?php echo $usuario['id_usuario']; ?>)">Eliminar</button>
+                                    <?php if ($usuario['rol'] !== 'Super'): ?>
+                                        <button class="action-btn edit-btn"
+                                            onclick="editUser(<?php echo $usuario['id_usuario']; ?>)">Editar</button>
+                                    <?php endif; ?>
+                                    <?php if ($usuario['rol'] !== 'Super' && $usuario_autenticado_rol === 'Super'): ?>
+                                        <button class="action-btn delete-btn"
+                                            onclick="confirmDelete(<?php echo $usuario['id_usuario']; ?>)">Eliminar</button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -351,11 +431,11 @@ if ($result->num_rows > 0) {
                     </div>
                     <div class="form-group password-container">
                         <label for="contrasena" class="form-label">Contraseña</label>
-                        <div class="relative">
+                        <div class="password-input-container">
                             <input type="password" id="contrasena" name="contrasena" class="password-input" required
                                 oninput="checkPasswordStrength(this.value)">
                             <button type="button" onclick="togglePasswordVisibility()"
-                                class="toggle-password absolute right-3">👁️</button>
+                                class="toggle-password">👁️</button>
                         </div>
                         <div class="password-strength">
                             <div id="passwordStrengthBar" class="password-strength-bar"></div>

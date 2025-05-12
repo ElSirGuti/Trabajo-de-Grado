@@ -19,269 +19,248 @@ if (!isset($_SESSION['id_usuario'])) {
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        :root {
-            --primary: #4299e1;
-            --dark: #1a202c;
-            --darker: #2d3748;
-            --light: #e2e8f0;
+    :root {
+        --primary: #2563EB;         /* Azul vibrante */
+        --primary-hover: #1D4ED8;    /* Azul más oscuro */
+        --dark: #1F2937;            /* Gris oscuro elegante */
+        --darker: #374151;          /* Gris un poco más claro */
+        --light: #F3F4F6;           /* Gris claro para fondos */
+        --text-light: #FFFFFF;       /* Texto blanco */
+        --text-dark: #1F2937;       /* Texto oscuro */
+        --text-muted: #6B7280;       /* Texto gris neutro */
+        --success: #10B981;          /* Verde esmeralda */
+        --danger: #EF4444;           /* Rojo para errores */
+        --border: #E5E7EB;           /* Borde gris claro */
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--light);
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .chat-container {
+        width: 100%;
+        max-width: 800px;
+        min-width: 500px;
+        background-color: var(--text-light);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+        border: 1px solid var(--border);
+    }
+
+    .chat-header {
+        background-color: var(--primary);
+        color: var(--text-light);
+        padding: 15px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .chat-messages {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background-color: var(--light);
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        line-height: 1.4;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-message {
+        align-self: flex-end;
+        background-color: var(--primary);
+        color: var(--text-light);
+        border-bottom-right-radius: 5px;
+    }
+
+    .bot-message {
+        align-self: flex-start;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 5px;
+    }
+
+    .chat-input {
+        display: flex;
+        padding: 15px;
+        border-top: 1px solid var(--border);
+        background-color: var(--text-light);
+    }
+
+    #user-input {
+        flex-grow: 1;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        outline: none;
+    }
+
+    #user-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    #send-button {
+        margin-left: 10px;
+        padding: 12px 20px;
+        background-color: var(--primary);
+        color: var(--text-light);
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    #send-button:hover {
+        background-color: var(--primary-hover);
+    }
+
+    #send-button:disabled {
+        background-color: var(--text-muted);
+        cursor: not-allowed;
+    }
+
+    /* Estilos para el Markdown renderizado */
+    .bot-message .markdown-rendered h1,
+    .bot-message .markdown-rendered h2,
+    .bot-message .markdown-rendered h3 {
+        color: var(--primary);
+        margin-top: 0.5em;
+        margin-bottom: 0.3em;
+    }
+
+    .bot-message .markdown-rendered a {
+        color: var(--primary);
+        text-decoration: underline;
+    }
+
+    .bot-message .markdown-rendered code {
+        background-color: var(--light);
+        color: var(--danger);
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+
+    .bot-message .markdown-rendered pre {
+        background-color: var(--light);
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+
+    /* Tablas mejoradas */
+    .table-container {
+        max-width: 100%;
+        overflow-x: auto;
+        margin: 1em 0;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }
+
+    .markdown-rendered table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+    }
+
+    .markdown-rendered th {
+        background-color: var(--primary);
+        color: var(--text-light);
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .markdown-rendered td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .markdown-rendered tr:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+
+    /* Notificaciones */
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification.info {
+        background-color: var(--primary);
+    }
+
+    .notification.error {
+        background-color: var(--danger);
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        padding: 12px 16px;
+        background-color: var(--text-light);
+        border-radius: 18px;
+        width: fit-content;
+        border: 1px solid var(--border);
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingAnimation {
+        0%, 60%, 100% {
+            transform: translateY(0);
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--light);
-            margin: 0;
-            display: flex;
-            min-height: 100vh;
+        30% {
+            transform: translateY(-5px);
         }
-
-        .chat-container {
-            width: 100%;
-            max-width: 800px;
-            min-width: 500px;
-            background-color: var(--darker);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            height: 80vh;
-        }
-
-        .chat-header {
-            background-color: var(--primary);
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .chat-messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            line-height: 1.4;
-        }
-
-        .user-message {
-            align-self: flex-end;
-            background-color: var(--primary);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .bot-message {
-            align-self: flex-start;
-            background-color: rgba(66, 153, 225, 0.2);
-            border-bottom-left-radius: 5px;
-        }
-
-        .chat-input {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #user-input {
-            flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #4a5568;
-            border-radius: 20px;
-            background-color: var(--dark);
-            color: var(--light);
-            outline: none;
-        }
-
-        #send-button {
-            margin-left: 10px;
-            padding: 12px 20px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        #send-button:hover {
-            background-color: #3182ce;
-        }
-
-        #send-button:disabled {
-            background-color: #4a5568;
-            cursor: not-allowed;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 5px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #a0aec0;
-            animation: typingAnimation 1.4s infinite ease-in-out;
-        }
-
-        @keyframes typingAnimation {
-
-            0%,
-            60%,
-            100% {
-                transform: translateY(0);
-            }
-
-            30% {
-                transform: translateY(-5px);
-            }
-        }
-
-        /* Añade estos estilos para el Markdown renderizado */
-        .bot-message markdown-rendered {
-            display: block;
-        }
-
-        .bot-message markdown-rendered h1,
-        .bot-message markdown-rendered h2,
-        .bot-message markdown-rendered h3 {
-            color: var(--primary);
-            margin-top: 0.5em;
-            margin-bottom: 0.3em;
-        }
-
-        .bot-message markdown-rendered ul,
-        .bot-message markdown-rendered ol {
-            padding-left: 20px;
-            margin: 0.5em 0;
-        }
-
-        .bot-message markdown-rendered li {
-            margin-bottom: 0.3em;
-        }
-
-        .bot-message markdown-rendered strong {
-            color: var(--primary);
-        }
-
-        .bot-message markdown-rendered em {
-            color: #a0aec0;
-        }
-
-        /* Estilos para el Markdown en mensajes del bot */
-        .bot-message h1,
-        .bot-message h2,
-        .bot-message h3 {
-            color: rgb(255, 255, 255);
-            margin: 0.5em 0;
-        }
-
-        .bot-message ul,
-        .bot-message ol {
-            padding-left: 20px;
-            margin: 0.5em 0;
-        }
-
-        .bot-message li {
-            margin-bottom: 0.3em;
-        }
-
-        .bot-message strong {
-            color: rgb(255, 255, 255);
-        }
-
-        .bot-message em {
-            font-style: italic;
-            color: #a0aec0;
-        }
-
-        .bot-message a {
-            color: #63b3ed;
-            text-decoration: underline;
-        }
-
-        .bot-message code {
-            background: #2d3748;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-
-        .bot-message pre {
-            background: #2d3748;
-            padding: 10px;
-            border-radius: 6px;
-            overflow-x: auto;
-        }
-
-        /* Agrega esto a tu archivo CSS o en el <style> del documento */
-        .markdown-rendered {
-            width: 100%;
-            overflow-x: auto;
-            margin: 1em 0;
-        }
-
-        .markdown-rendered table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #2d3748;
-            color: #e2e8f0;
-            margin: 1em 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .markdown-rendered th {
-            background-color: #4299e1;
-            color: white;
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-
-        .markdown-rendered td {
-            padding: 10px 15px;
-            border-bottom: 1px solid #4a5568;
-        }
-
-        .markdown-rendered tr:hover {
-            background-color: rgba(66, 153, 225, 0.1);
-        }
-
-        .markdown-rendered tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Estilo para la leyenda */
-        .table-legend {
-            font-size: 0.85em;
-            color: #a0aec0;
-            margin-top: 0.5em;
-            padding: 8px;
-            background-color: rgba(66, 153, 225, 0.1);
-            border-radius: 4px;
-        }
-
-        /* Contenedor de scroll para tablas muy anchas */
-        .table-container {
-            max-width: 100%;
-            overflow-x: auto;
-            border-radius: 8px;
-            margin: 1em 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    }
+</style>
     <script>
         // Actualizar el badge de notificaciones periódicamente
         function updateNotificationBadge() {
@@ -314,8 +293,8 @@ if (!isset($_SESSION['id_usuario'])) {
     <main class="main-content"></main>
     <div class="chat-container" style="margin-top: 20px; margin-right: 10px;">
         <div class="chat-header">
-            <h2>Chatbot LLaMA 3.2B</h2>
-            <p>Modelo ejecutándose localmente</p>
+            <h2>Chatbot MecaBot</h2>
+            <p>Generado por IA, usar como referencia</p>
         </div>
 
         <div class="chat-messages" id="chat-messages">
@@ -627,7 +606,7 @@ if (!isset($_SESSION['id_usuario'])) {
         // Mensaje inicial con Markdown
         window.onload = () => {
             userInput.focus();
-            addMessage('bot', '¡Hola! Soy tu asistente con **LLaMA 3.2B**. \n\n¿En qué puedo ayudarte hoy?');
+            addMessage('bot', '¡Hola! Soy tu asistente **MecaBot**. \n\n¿En qué puedo ayudarte hoy?');
         };
     </script>
 </body>
